@@ -1,13 +1,19 @@
-from database import db_session
-from models import BookPost
+from database import get_db
 
-def delete_post_service(post_id):
-    # 查找貼文
-    post = db_session.query(BookPost).filter_by(id=post_id).first()
-    if not post:
-        return False  # 貼文不存在
+class PostService:
+    def delete_post(post_id):
+        db = get_db()
+        cursor = db.cursor()
 
-    # 刪除貼文
-    db_session.delete(post)
-    db_session.commit()
-    return True
+        # 查找貼文
+        cursor.execute('SELECT * FROM book_posts WHERE id = ?', (post_id,))
+        post = cursor.fetchone()
+        if post is None:
+            return None  # 貼文不存在
+
+        # 刪除貼文
+        cursor.execute('DELETE FROM book_posts WHERE id = ?', (post_id,))
+        db.commit()
+
+        # 回傳刪除的貼文資訊
+        return {"success": True, "post": dict(post)}

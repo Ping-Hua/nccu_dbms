@@ -1,6 +1,6 @@
 from flask import jsonify
 import logging
-from services.post_service import PostService
+from app.services.post_service import PostService
 ## api 中的
 class PostController:
     def add_post(self):
