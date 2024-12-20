@@ -1,7 +1,7 @@
 from app.database import get_db
 
 class PostService:
-    def delete_post(post_id):
+    def service_delete_post(post_id):
         db = get_db()
         cursor = db.cursor()
 
@@ -15,5 +15,5 @@ class PostService:
         cursor.execute('DELETE FROM book_posts WHERE id = ?', (post_id,))
         db.commit()
 
-        # 回傳刪除的貼文資訊
-        return {"success": True, "post": dict(post)}
+         # 回傳刪除的貼文資訊
+        return {"id": post["id"], "title": post["title"]}
