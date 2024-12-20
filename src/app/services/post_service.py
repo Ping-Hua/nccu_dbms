@@ -1,4 +1,4 @@
-from database import get_db
+from app.database import get_db
 
 class PostService:
     def delete_post(post_id):

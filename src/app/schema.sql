@@ -11,7 +11,7 @@ CREATE TABLE book_posts (
     price INTEGER NOT NULL,
     post_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     seller_id INTEGER,                     -- 賣家 ID
-    isbn INTEGER,                          -- 書籍 ISBN
+    isbn INTEGER                        -- 書籍 ISBN
 
     -- 外鍵約束
    -- FOREIGN KEY (seller_id) REFERENCES sellers (id),

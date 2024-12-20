@@ -27,7 +27,7 @@ def init_db():
     if not os.path.exists(schema_path):
         raise FileNotFoundError(f"Schema file not found at {schema_path}")
 
-    with open(schema_path, 'r') as f:
+    with open(schema_path, 'r', encoding='utf-8') as f:
         db.executescript(f.read())
     logging.info("Database initialized.")
 
