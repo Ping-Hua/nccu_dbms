@@ -8,22 +8,22 @@ class ReplyController:
         logging.info("----Reply_controller.add_reply----")
 
         data = request.get_json()
+        from_user_id = data.get('from_user_id') # 回應者的 user 的 userId
+        to_user_id = data.get('to_user_id') # 貼文 user 的 userId
         post_id = data.get('post_id') # 貼文的 ID
-        to_id = data.get('to_id') # 貼文 user 的 userId
-        from_id = data.get('from_id') # 回應者的 user 的 userId
-        content = data.get('content') # 回應的文字
+        message = data.get('message') # 回應的文字
 
-        if not all([post_id, to_id, from_id, content]):
-            return jsonify({"error": "Missing required fields: post_id, to_id, from_id, content"}), 400
+        if not all([from_user_id, to_user_id, post_id, message]):
+            return jsonify({"error": "Missing required fields: from_user_id, to_user_id, post_id, message"}), 400
         
         try:
-            reply = ReplyService.add_reply(post_id, from_id, to_id, content)
+            reply = ReplyService.add_reply(from_user_id, to_user_id, post_id, message)
             return jsonify({
                 'reply_id': reply['reply_id'],
-                'from_id': reply['from_id'],
-                'to_id': reply['to_id'],
+                'from_user_id': reply['from_user_id'],
+                'to_user_id': reply['to_user_id'],
                 'post_id': reply['post_id'],
-                'content': reply['content'],
+                'message': reply['message'],
                 'reply_time': reply['reply_time']            
             }), 201
         
