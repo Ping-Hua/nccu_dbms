@@ -1,6 +1,8 @@
 # Project Setup and Start
 ## Backend
-```shell
+```
+cd backend
+
 # for Mac
 export FLASK_APP=src/app
 

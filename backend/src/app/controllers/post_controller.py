@@ -1,46 +1,38 @@
-from flask import jsonify, request, g
+from flask import jsonify, request
 import logging
-from sqlite3 import IntegrityError
-from app.database import get_db
+from app.services.post_service import PostService
 
 class PostController:
     def add_post(self):
-        logging.info("----- PostController.add_post -----")
+        logging.info("----post_controller.add_post----")
+        
+        data = request.get_json()
+        seller_user_id = data.get('seller_user_id')
+        book_id = data.get('book_id')
+        book_condition = data.get('book_condition')
+        price = data.get('price')
+
+        if not all([seller_user_id, book_id, book_condition]):
+            return jsonify({"error": "Missing required fields: seller_user_id, book_id, book_condition"}), 400
+        if not isinstance(price, (int, float)) or price <= 0:
+            return jsonify({"error": "Price must be a positive integer"}), 400
+        
         try:
-            user_id = g.user_id  
-            if not user_id:
-                return jsonify({"error": "User not authenticated"}), 401
-
-            data = request.get_json()
-            price = data.get('BookPrice') 
-            book_condition = data.get('BookCondition')  
-
-            if not price or not book_condition:
-                return jsonify({
-                    "error": "BookPrice and BookCondition are required fields"
-                }), 400
-
-            db = get_db()
-            cursor = db.cursor()
-
-            cursor.execute(
-                (user_id, price, book_condition)
-            )
-            db.commit()
-
-            post_id = cursor.lastrowid
+            post = PostService.add_post(seller_user_id, book_id, book_condition, price)
             return jsonify({
-                "message": "Post added successfully",
-                "PostID": post_id
+                'post_id': post['post_id'],
+                'seller_user_id': post['seller_user_id'],
+                'book_id': post['book_id'],
+                'book_condition': post['book_condition'],
+                'price': post['price'],
+                'create_time': post['create_time']
             }), 201
-
-        except IntegrityError as e:
-            logging.error(f"Database error: {e}")
-            return jsonify({"error": "Database integrity error"}), 400
-
+        
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
         except Exception as e:
-            logging.error(f"Error adding post: {e}")
-            return jsonify({"error": "Internal Server Error"}), 500
+            logging.error(f"Error adding post: {str(e)}")
+            return jsonify({"error": "An unexpected error occurred."}), 500
     
     def update_post(self):
         logging.info("----Post_controller.update_post----")
