@@ -29,6 +29,7 @@ class ReplyService:
                 "post_id": reply[3],
                 "message": reply[4],
                 "reply_time": reply[5]
+
             }
             return reply_data
         except Exception as e:
