@@ -1,4 +1,8 @@
 <script setup>
+import { ref } from 'vue';
+import LoginModal from './components/LoginModal.vue'; // 確保路徑正確
+
+const showModal = ref(false);
 </script>
 
 <template>
@@ -33,7 +37,10 @@
           </ul>
 
           <!-- User -->
-          <div class="ms-auto">
+          <div class="ms-auto d-flex align-items-center">
+            <a href="#" class="btn btn-outline-light me-3" style="font-size: 0.875rem;" @click.prevent="showModal = true">
+              登入/註冊
+            </a>
             <router-link to="/user" class="nav-link">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -50,6 +57,9 @@
         </div>
       </div>
     </nav>
+
+    <!-- Modal -->
+    <LoginModal v-if="showModal" @close="showModal = false" />
 
     <!-- 主要內容區域 -->
     <div class="container mt-4">
