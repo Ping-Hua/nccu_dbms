@@ -16,7 +16,7 @@ const handleSubmit = () => {
 };
 
 const registerHandler = () => {
-  router.push({ path: '/register'}); // 轉到註冊頁面
+  emits('open-register') // 轉到註冊 modal
 };
 
 const closeModal = () => {

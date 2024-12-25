@@ -1,8 +1,22 @@
 <script setup>
 import { ref } from 'vue';
-import LoginModal from './components/LoginModal.vue'; // 確保路徑正確
+import LoginModal from './components/LoginModal.vue';
+import RegisterModal from './components/RegisterModal.vue';
 
 const showModal = ref(false);
+const modalType = ref('login');
+
+// 切換註冊
+const openRegisterModal = () => {
+  modalType.value = 'register';
+  showModal.value = true;
+};
+
+// 切換登入
+const openLoginModal = () => {
+  modalType.value = 'login';
+  showModal.value = true;
+};
 </script>
 
 <template>
@@ -38,7 +52,7 @@ const showModal = ref(false);
 
           <!-- User -->
           <div class="ms-auto d-flex align-items-center">
-            <a href="#" class="btn btn-outline-light me-3" style="font-size: 0.875rem;" @click.prevent="showModal = true">
+            <a href="#" class="btn btn-outline-light me-3" style="font-size: 0.875rem;" @click.prevent="openLoginModal">
               登入/註冊
             </a>
             <router-link to="/user" class="nav-link">
@@ -59,7 +73,16 @@ const showModal = ref(false);
     </nav>
 
     <!-- Modal -->
-    <LoginModal v-if="showModal" @close="showModal = false" />
+    <LoginModal
+      v-if="showModal && modalType === 'login'"
+      @close="showModal = false"
+      @open-register="openRegisterModal"
+    />
+    <RegisterModal
+      v-if="showModal && modalType === 'register'"
+      @close="showModal = false"
+      @open-login="openLoginModal"
+    />
 
     <!-- 主要內容區域 -->
     <div class="container mt-4">
