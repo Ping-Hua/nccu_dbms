@@ -16,7 +16,7 @@ const handleSubmit = () => {
 };
 
 const registerHandler = () => {
-  router.push({ path: '/register'}); // 導航到註冊頁面
+  router.push({ path: '/register'}); // 轉到註冊頁面
 };
 
 const closeModal = () => {
@@ -28,19 +28,17 @@ const closeModal = () => {
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
         <form @submit.prevent="handleSubmit">
-            <label class="form-label title-label">Login</label>
+            <label class="form-label title-label">BookCycle</label>
             <div class="row mb-3">
-                <label for="Email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="Email" v-model="email" />
+                <input type="email" class="form-control" id="Email" v-model="email" placeholder="Email" />
             </div>
             <div class="row mb-3">
-                <label for="Password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="Password" v-model="password" />
+                <input type="password" class="form-control" id="Password" v-model="password" placeholder="Password" />
             </div>
-            <button type="submit" class="btn btn-secondary">Submit</button>
+            <button type="submit" class="btn btn-secondary">Login</button>
 
             <!-- Register Link -->
-            <p class="register-link" data-bs-dismiss="modal" @click="registerHandler">Register</p>
+            <p class="register-link" data-bs-dismiss="modal" @click="registerHandler">Create new account</p>
          </form>
     </div>
   </div>
@@ -65,7 +63,7 @@ const closeModal = () => {
   padding: 2rem;
   border-radius: 8px;
   width: 400px;
-  height: 350px;
+  height: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
