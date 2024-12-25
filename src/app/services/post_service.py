@@ -48,19 +48,32 @@ class PostService:
             db.rollback()
             logging.error(f"Database error: {str(e)}")
             raise e
+    @staticmethod
     def service_delete_post(post_id):
         db = get_db()
         cursor = db.cursor()
 
-        # 查找貼文
-        cursor.execute('SELECT * FROM book_posts WHERE id = ?', (post_id,))
-        post = cursor.fetchone()
-        if post is None:
-            return None  # 貼文不存在
+        try:
+            # 查找貼文
+            cursor.execute('SELECT post_id, seller_user_id FROM post WHERE post_id = ?', (post_id,))
+            post = cursor.fetchone()
+            if post is None:
+                logging.warning(f"Post with post_id {post_id} does not exist.")
+                return None  # 貼文不存在
 
-        # 刪除貼文
-        cursor.execute('DELETE FROM book_posts WHERE id = ?', (post_id,))
-        db.commit()
+            # 刪除貼文
+            cursor.execute('DELETE FROM post WHERE post_id = ?', (post_id,))
+            db.commit()
 
-         # 回傳刪除的貼文資訊
-        return {"id": post["id"], "title": post["title"]}
+            # 回傳刪除的貼文資訊
+            deleted_post = {
+                "post_id": post[0],  # 假設第一個欄位是 id
+                "seller_user_id": post[1]  # 假設第二個欄位是 title
+            }
+            logging.info(f"Post with post_id {post_id} deleted successfully.")
+            return deleted_post
+
+        except Exception as e:
+            db.rollback()
+            logging.error(f"Error deleting post with post_id {post_id}: {str(e)}")
+            raise e
