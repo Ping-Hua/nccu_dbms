@@ -205,7 +205,38 @@ class PostService:
                 post_json.append(post_data)
             return post_json
 
+        except ValueError as e:
+            logging.warning(f"Validation error: {str(e)}")
+            raise e
+        except Exception as e:
+            db.rollback()
+            logging.error(f"Database error: {str(e)}")
+            raise e
         
+    def get_all_post_by_book(book_id):
+        db = get_db()
+        cursor = db.cursor()
+
+        try:
+            cursor.execute(
+                "SELECT post_id, seller_user_id, book_id, book_condition, price, create_time FROM post "
+                "WHERE book_id = ?",
+                (book_id,)
+            )
+            posts = cursor.fetchall()
+            post_json = []
+            for post in posts:
+                post_data = {
+                    "post_id": post[0],
+                    "seller_user_id": post[1],
+                    "book_id": post[2],
+                    "book_condition": post[3],
+                    "price": post[4],
+                    "create_time": post[5]
+                }
+                post_json.append(post_data)
+            return post_json
+
         except ValueError as e:
             logging.warning(f"Validation error: {str(e)}")
             raise e

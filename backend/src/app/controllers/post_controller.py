@@ -89,7 +89,10 @@ class PostController:
     
     def get_all_post(self):
         logging.info("----Post_controller.get_all_post----")
-        post_list = PostService.get_all_post()
+        book_id = request.args.get('book_id')
+        if book_id:
+            post_list = PostService.get_all_post_by_book(book_id)
+        else:
+            post_list = PostService.get_all_post()
         return post_list, 201
-
     
