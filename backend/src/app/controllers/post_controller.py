@@ -67,9 +67,20 @@ class PostController:
             logging.error(f"Error adding post: {str(e)}")
             return jsonify({"error": "An unexpected error occurred." + str(e)}), 500
     
-    def delete_post(self):
+    def delete_post(self,post_id):
         logging.info("----Post_controller.delete_post----")
-
+        try:
+            # 呼叫 service 層進行刪除，並獲取被刪除的貼文資料
+            deleted_post = PostService.service_delete_post(post_id)
+            if deleted_post:
+                logging.info(f"Post with ID {post_id} deleted successfully: {deleted_post}")
+                return {"success": True, "message": "Post deleted successfully", "post": deleted_post}, 200
+            else:
+                logging.warning(f"Attempted to delete non-existent post with ID {post_id}")
+                return {"success": False, "error": "Post not found"},404
+        except Exception as e:
+            logging.error(f"Error occurred while deleting post with ID {post_id}: {str(e)}")
+            return {"success": False, "error": str(e)},500
         # TODO: 實現刪除貼文邏輯
         return jsonify({"message": "Post deleted successfully"})
 
@@ -77,5 +88,5 @@ class PostController:
         logging.info("----Post_controller.get_post----")
         post = PostService.get_post(post_id)
         return post, 201
+
     
-post_controller = PostController()
