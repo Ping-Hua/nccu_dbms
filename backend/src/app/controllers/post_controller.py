@@ -81,19 +81,15 @@ class PostController:
         except Exception as e:
             logging.error(f"Error occurred while deleting post with ID {post_id}: {str(e)}")
             return {"success": False, "error": str(e)},500
-        # TODO: 實現刪除貼文邏輯
-        return jsonify({"message": "Post deleted successfully"})
 
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
-        post_list = PostService.get_post(post_id)
-        return jsonify({
-            "posts" : post_list
-        }), 201
+        post = PostService.get_post(post_id)
+        return post, 201
     
     def get_all_post(self):
-        logging.info("----Post_controller.get_post----")
-        post = PostService.get_all_post()
-        return post, 201
+        logging.info("----Post_controller.get_all_post----")
+        post_list = PostService.get_all_post()
+        return post_list, 201
 
     
