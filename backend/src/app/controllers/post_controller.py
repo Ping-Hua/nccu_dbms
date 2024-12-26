@@ -36,14 +36,46 @@ class PostController:
     
     def update_post(self):
         logging.info("----Post_controller.update_post----")
+        data = request.get_json()
+        post_id = data.get('post_id')
+        book_id = data.get('book_id')
+        book_condition = data.get('book_condition')
+        price = data.get('price')
 
-        # TODO: 實現修改貼文邏輯
-        return jsonify({"message": "Post updated successfully"})
+        if not post_id:
+            return jsonify({"error": "Missing required fields: post_id"}), 400
+        
+        try:
+            post = PostService.get_post(post_id)
+
+            book_id = PostService.update_post_book(post_id, book_id)['book_id'] if book_id else post["book_id"]
+            book_condition = PostService.update_post_book_condition(post_id, book_condition)['book_condition'] if book_condition else post["book_condition"]
+            price = PostService.update_post_price(post_id, price)['price'] if price else post["price"]
+
+            post = {
+                "post_id" : post_id,
+                "book_id" : book_id,
+                "book_condition" : book_condition,
+                "price" : price
+            }
+
+            return post, 201
+
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logging.error(f"Error adding post: {str(e)}")
+            return jsonify({"error": "An unexpected error occurred." + str(e)}), 500
     
     def delete_post(self):
         logging.info("----Post_controller.delete_post----")
 
         # TODO: 實現刪除貼文邏輯
         return jsonify({"message": "Post deleted successfully"})
+
+    def get_post(self, post_id):
+        logging.info("----Post_controller.get_post----")
+        post = PostService.get_post(post_id)
+        return post, 201
     
 post_controller = PostController()
