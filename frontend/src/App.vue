@@ -43,7 +43,7 @@ const openLoginModal = () => {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <router-link to="/book" class="nav-link fw-bold text-white">書籍</router-link>
+              <router-link to="/book" class="nav-link fw-bold text-white">Book</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/comments" class="nav-link fw-bold text-white">留言板</router-link>
