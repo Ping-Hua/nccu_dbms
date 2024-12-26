@@ -86,7 +86,14 @@ class PostController:
 
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
-        post = PostService.get_post(post_id)
+        post_list = PostService.get_post(post_id)
+        return jsonify({
+            "posts" : post_list
+        }), 201
+    
+    def get_all_post(self):
+        logging.info("----Post_controller.get_post----")
+        post = PostService.get_all_post()
         return post, 201
 
     
