@@ -20,7 +20,7 @@ CREATE TABLE post (
     post_id INTEGER PRIMARY KEY AUTOINCREMENT,
     seller_user_id INTEGER, -- fk
     book_id INTEGER, -- fk
-    book_condition TEXT UNIQUE, -- not null
+    book_condition TEXT, -- not null
     price INTEGER, -- not null
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP
 );
