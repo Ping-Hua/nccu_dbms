@@ -1,7 +1,7 @@
-from flask import jsonify,request
+from flask import jsonify, request
 import logging
 from app.services.post_service import PostService
-## api 中的
+
 class PostController:
     def add_post(self):
         logging.info("----post_controller.add_post----")
@@ -33,7 +33,7 @@ class PostController:
         except Exception as e:
             logging.error(f"Error adding post: {str(e)}")
             return jsonify({"error": "An unexpected error occurred."}), 500
-      
+    
     def update_post(self):
         logging.info("----Post_controller.update_post----")
 
