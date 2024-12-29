@@ -11,6 +11,7 @@ from app import db
 class Book(db.Model):
     __tablename__ = 'book'
     book_id = db.Column(db.Integer, primary_key=True)
+    book_name = db.Column(db.Text,nullable = False)
     ISBN = db.Column(db.Text ,nullable = False)
     author = db.Column(db.Text ,nullable = False)
     version = db.Column(db.Text ,nullable = True) 
@@ -20,6 +21,7 @@ class Book(db.Model):
     def to_dict(self):
         return {
             "book_id": self.book_id,
+            "book_name": self.book_name,
             "ISBN": self.ISBN,
             "author": self.author,
             "version": self.version,
