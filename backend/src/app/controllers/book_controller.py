@@ -5,7 +5,38 @@ from app.services.book_service import BookService
 class BookController:
     def add_book(self):
         logging.info("----Book_controller.add_book----")
+        data = request.get_json()
+        book_name = data.get('book_name') # 回應者的 user 的 userId
+        author = data.get('author') # 貼文 user 的 userId
+        if not all([book_name,author]):
+            logging.warning("Missing info in the request.")
+            return jsonify({"success": False, "error": "Missing info : book_name,author"}), 400
 
+        try:
+             # 使用實例化的 Service 來調用 search 方法
+            book_service = BookService()
+            adding = book_service.adding_book(book_name,author)
+            
+            logging.info(f"Books with query '{book_name}' adding successfully.")
+            book_data = {
+                "book_id": adding[0],
+                "book_name": adding[1],
+                "ISBN": adding[2],
+                "author": adding[3],
+                "version": adding[4],
+                "public_year": adding[5],
+                "publisher": adding[6],
+                "create_time": adding[7]
+            }
+            return jsonify(adding), 201
+                 
+        except Exception as e:
+            logging.error(f"Error adding book: {str(e)}")
+            return jsonify({"success": False, "error": str(e)}),500
+        
+        # TODO: 實現書籍搜尋邏輯
+        # return jsonify({"message": "Books searched successfully", "books": []})
+    
         # TODO: 實現新增書籍邏輯
         return jsonify({"message": "Book added successfully"})
     
