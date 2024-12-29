@@ -2,7 +2,7 @@ from app.database import get_db
 import logging
 
 class BookService():
-    def adding_book(book_name,author):
+    def adding_book(self,book_name,author):
         db = get_db()
         cursor = db.cursor()
         try:
@@ -11,12 +11,11 @@ class BookService():
                 (book_name,author)
             )
             db.commit()
-            book_id = cursor.lastrowid
+            book_id = cursor.lastrowid # 獲取新增書籍的 ID
             logging.info(f"Book added successfully: {book_id}")
 
             cursor.execute(
-                "SELECT * "
-                "FROM book WHERE book_id = ?", book_id
+                "SELECT * FROM book WHERE book_id = ?", (book_id,)
             )
             book = cursor.fetchone()
 
@@ -35,6 +34,8 @@ class BookService():
             db.rollback()
             logging.error(f"Error adding books with book name/auther {book_name}: {str(e)}")
             raise e
+        finally:
+            cursor.close()  # 確保關閉 cursor
             
     def search(self,bookname):
         db = get_db()
@@ -61,13 +62,13 @@ class BookService():
                     "publisher": book[6],
                     "create_time": book[7]
                 }
-                book_data.append(book_data)
+                
             logging.info(f"Books with query '{bookname}' retrieved successfully.")
             
             return book_data
         except Exception as e:
             db.rollback()
-            logging.error(f"Error searching books with book name/auther {bookname}: {str(e)}")
+            logging.error(f"Error searching books with query {bookname}: {str(e)}")
             raise e
         finally:
             cursor.close()
