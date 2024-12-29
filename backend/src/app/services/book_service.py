@@ -5,15 +5,16 @@ class BookService():
     def search(self,book_name):
         db = get_db()
         cursor = db.cursor()
-
+        search_book = book_name.lower()
         try:
-            cursor.execute('SELECT * FROM book WHERE book_name=?',book_name)
-            if cursor is None:
-                logging.warning(f"Book names {book_name} does not exist.")
-                return None  # 貼文不存在
+            cursor.execute('SELECT * FROM book WHERE book_name=?   OR author =?',(search_book,search_book))
+            if cursor is None :
+                logging.warning(f"Book names/author {search_book} does not exist.")
+                return None  # 不存在
             else:
-                logging.info(f"Books with book name {book_name} search successfully.")
+                logging.info(f" {search_book} search successfully.")
                 book_data = []
+                
                 for book in cursor:
                     book_data = {
                         "book_id": book[0],
