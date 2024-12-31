@@ -48,11 +48,12 @@ class BookService():
             if not results:
                 logging.warning(f"Book name/author {search_book} does not exist.")
                 return None  # 不存在
-            
+
+           
             book_data = []
             
             for book in results:
-                book_data = {
+                book_data.append({
                     "book_id": book[0],
                     "book_name": book[1],
                     "ISBN": book[2],
@@ -60,8 +61,7 @@ class BookService():
                     "version": book[4],
                     "public_year": book[5],
                     "publisher": book[6],
-                    "create_time": book[7]
-                }
+                    "create_time": book[7]})
                 
             logging.info(f"Books with query '{bookname}' retrieved successfully.")
             
