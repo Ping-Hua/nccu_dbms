@@ -39,11 +39,8 @@ class PostService:
             (post_id,)
         )
 
-        post = cursor.fetchone()
-        print(post)
-
         post_data = {
-            "book_id": post[1],
+            "book_id": book_id,
         }
 
         return post_data
@@ -62,26 +59,19 @@ class PostService:
         }
 
         return post_data
-
+    
+    @use_db
     def update_post_price(cursor, post_id, price):
         
         cursor.execute(
             "UPDATE post SET price = ? WHERE post_id = ?",
             (price, post_id)
         )
-        db.commit()
 
         logging.info(f"Post's price update successfully: {post_id}")
 
-        cursor.execute(
-            "SELECT post_id, price "
-            "FROM post WHERE post_id =?", 
-            (post_id,)
-        )
-        post = cursor.fetchone()
-
         post_data = {
-            "price": post[1],
+            "price": price,
         }
 
         return post_data
