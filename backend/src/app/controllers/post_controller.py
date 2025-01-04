@@ -85,7 +85,7 @@ class PostController:
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
         post = PostService.get_post(post_id)
-        return post, 201
+        return post, 200
     
     def get_all_post(self):
         logging.info("----Post_controller.get_all_post----")
@@ -94,5 +94,5 @@ class PostController:
             post_list = PostService.get_all_post_by_book(book_id)
         else:
             post_list = PostService.get_all_post()
-        return post_list, 201
+        return post_list, 200
     
