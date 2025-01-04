@@ -25,7 +25,6 @@ class PostController:
                 'book_id': post['book_id'],
                 'book_condition': post['book_condition'],
                 'price': post['price'],
-                'create_time': post['create_time']
             }), 201
         
         except ValueError as e:
