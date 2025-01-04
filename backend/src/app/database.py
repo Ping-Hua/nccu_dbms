@@ -30,8 +30,13 @@ def use_db(func):
             result = func(cursor, *args, **kwargs)
             db.commit()
             return result
+        except ValueError as e:
+            db.rollback()
+            logging.warning(f"Validation error: {str(e)}")
+            raise e
         except Exception as e:
             db.rollback()
+            logging.error(f"Database error: {str(e)}")
             raise e
         finally:
             close_db()
