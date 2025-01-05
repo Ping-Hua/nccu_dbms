@@ -6,10 +6,12 @@ from app.routes.post_routes import post_bp
 from app.routes.reply_routes import reply_bp
 from app.routes.home_routes import home_bp
 from . import database
+from flask_cors import CORS
 
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
     #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
