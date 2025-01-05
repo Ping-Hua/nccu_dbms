@@ -24,7 +24,6 @@ class ReplyController:
                 'to_user_id': reply['to_user_id'],
                 'post_id': reply['post_id'],
                 'message': reply['message'],
-                'reply_time': reply['reply_time']            
             }), 201
         
         except Exception as e:
