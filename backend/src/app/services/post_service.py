@@ -1,13 +1,19 @@
 from app.database import use_db
 import logging
 import json
+from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
 
 class PostService:
     @staticmethod
     @use_db
     def add_post(cursor, seller_user_id, book_id, book_condition, price):
         logging.info('info', 'add_post called with parameters: seller_user_id={seller_user_id}, book_id={book_id}, book_condition={book_condition}, price={price}')
-
+        
+        if not all([seller_user_id, book_id, book_condition]):
+            raise ValidationError("Missing required fields: seller_user_id, book_id, book_condition")
+        if not isinstance(price, (int, float)) or price <= 0:
+            raise ValidationError("Price must be a positive integer")
+        
         # 插入資料
         cursor.execute(
             "INSERT INTO post (seller_user_id, book_id, book_condition, price) VALUES (?,?,?,?)", 
@@ -33,11 +39,6 @@ class PostService:
         )
 
         logging.info(f"Post's book update successfully: {post_id}")
-        cursor.execute(
-            "SELECT post_id, book_id "
-            "FROM post WHERE post_id = ?", 
-            (post_id,)
-        )
 
         post_data = {
             "book_id": book_id,
@@ -79,13 +80,19 @@ class PostService:
     @staticmethod
     @use_db
     def get_post(cursor, post_id):
+        if post_id is None:
+            raise ValidationError("Missing required fields: post_id")
 
         cursor.execute(
             "SELECT post_id, seller_user_id, book_id, book_condition, price, create_time "
             "FROM post WHERE post_id =?", 
             (post_id,)
         )
+
         post = cursor.fetchone()
+
+        if post is None:
+            raise ResourceNotFoundError("Unable to find the target post with the specified post_id")
 
         post_data = {
             "post_id": post[0],
@@ -103,6 +110,8 @@ class PostService:
             "SELECT post_id, seller_user_id, book_id, book_condition, price, create_time FROM post"
         )
         posts = cursor.fetchall()
+        if posts is None:
+            raise ResourceNotFoundError("Unable to find post list")
         post_json = []
         for post in posts:
             post_data = {
@@ -124,6 +133,8 @@ class PostService:
             (book_id,)
         )
         posts = cursor.fetchall()
+        if posts is None:
+            raise ResourceNotFoundError("Unable to find post list by book_id")
         post_json = []
         for post in posts:
             post_data = {
