@@ -6,10 +6,12 @@ from app.routes.post_routes import post_bp
 from app.routes.reply_routes import reply_bp
 from app.routes.home_routes import home_bp
 from . import database
+from flask_cors import CORS
 
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
     #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -27,5 +29,5 @@ def create_app():
     app.register_blueprint(book_bp, url_prefix='/api/v1/book')
     app.register_blueprint(post_bp, url_prefix='/api/v1/post')
     app.register_blueprint(reply_bp, url_prefix='/api/v1/reply')
-    
+
     return app

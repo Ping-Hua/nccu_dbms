@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // 初始化全局變量
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL; 
-const userID = 11; // 測試用戶 ID
+const userID = 666; // 測試用戶 ID
 
 export default {
   setup() {
@@ -83,8 +83,8 @@ export default {
             <h3>留言板列表</h3>
             <ul>
                 <li v-for="comment in comments" :key="comment.post_id">
-                    <p>貼文 ID: {{ comment.post_id }}</p>
-                    <p>內容： {{ comment.message }}</p>
+                    <p>{{ comment.to_user_id }}</p>
+                    <p>message： {{ comment.message }}</p>
                 </li>
             </ul>
         </div>
@@ -96,7 +96,7 @@ export default {
 <style>
 .chat-container {
     width: 100%;
-    height: 100vh;
+    height: 80vh;
 }
 
 .chat-list {
