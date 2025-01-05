@@ -1,3 +1,4 @@
+from functools import wraps
 import sqlite3
 import os
 import click
@@ -19,6 +20,27 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+def use_db(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        db = get_db()
+        cursor = db.cursor()
+        try:
+            result = func(cursor, *args, **kwargs)
+            db.commit()
+            return result
+        except ValueError as e:
+            db.rollback()
+            logging.warning(f"Validation error: {str(e)}")
+            raise e
+        except Exception as e:
+            db.rollback()
+            logging.error(f"Database error: {str(e)}")
+            raise e
+        finally:
+            close_db()
+    return wrapper
 
 def init_db():
     db = get_db()
