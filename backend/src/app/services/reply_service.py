@@ -43,3 +43,25 @@ class ReplyService:
             }
             reply_datas.append(reply_data)
         return reply_datas
+    
+    @use_db
+    def get_user_all_history(cursor,user_id):
+        cursor.execute(
+            "SELECT DISTINCT post_id, from_user_id, to_user_id, message, create_time"
+            " FROM reply WHERE from_user_id = ? OR to_user_id = ? "
+            " ORDER by create_time ASC",
+            (user_id, user_id)
+        )
+
+        replies = cursor.fetchall()
+        reply_datas = []
+        for reply in replies:
+            reply_data = {
+                "post_id": reply[0],
+                "from_user_id": reply[1],
+                "to_user_id": reply[2],
+                "message": reply[3],
+                "reply_time": reply[4]
+            }
+            reply_datas.append(reply_data)
+        return reply_datas
