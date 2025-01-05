@@ -70,6 +70,10 @@ class ReplyController:
         
         try:
             reply_history = ReplyService.get_user_all_history(user_id)
+
+            if not reply_history:
+                return jsonify({"message": f"No reply history found for the userID: {user_id}.", "reply_history": []}), 200
+            
             return jsonify({ "reply_history" : reply_history }), 200
         
         except Exception as e:
