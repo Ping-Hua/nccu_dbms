@@ -67,8 +67,8 @@ class PostService:
 
             # 回傳刪除的貼文資訊
             deleted_post = {
-                "post_id": post[0],  # 假設第一個欄位是 id
-                "seller_user_id": post[1]  # 假設第二個欄位是 title
+                "post_id": post[0],  # post id
+                "seller_user_id": post[1]  # user id
             }
             logging.info(f"Post with post_id {post_id} deleted successfully.")
             return deleted_post
