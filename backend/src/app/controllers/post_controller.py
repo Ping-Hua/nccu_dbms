@@ -43,20 +43,7 @@ class PostController:
             "price" : price
         }
 
-        return post, 201
-    
-    def delete_post(self,post_id):
-        logging.info("----Post_controller.delete_post----")
-
-        # 呼叫 service 層進行刪除，並獲取被刪除的貼文資料
-        deleted_post = PostService.service_delete_post(post_id)
-
-        # if deleted_post is None:
-        #     raise ResourceNotFoundError(f"Attempted to delete non-existent post with ID {post_id}")
-        logging.info(f"Post with ID {post_id} deleted successfully: {deleted_post}")
-        return {"success": True, "message": "Post deleted successfully", "post": deleted_post}, 200
-
-        
+        return post, 201 
 
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
