@@ -47,21 +47,47 @@ class ReplyService:
     @use_db
     def get_user_all_history(cursor,user_id):
         cursor.execute(
-            "SELECT DISTINCT post_id, from_user_id, to_user_id, message, create_time"
-            " FROM reply WHERE from_user_id = ? OR to_user_id = ? "
-            " ORDER by create_time ASC",
-            (user_id, user_id)
+            """ 
+            -- （user_id, post_id） 分組、編號
+            WITH LatestReplies AS (
+                SELECT 
+                    CASE
+                        WHEN from_user_id = ? THEN to_user_id
+                        ELSE from_user_id
+                    END AS other_user_id,
+                    post_id,
+                    message,
+                    create_time,
+                    ROW_NUMBER() OVER (  -- 給唯一編號
+                        PARTITION BY 
+                            CASE 
+                                WHEN from_user_id =? THEN to_user_id 
+                                ELSE from_user_id 
+                                END,
+                                post_id
+                            ORDER BY create_time DESC -- 降序（編號 1 會最新）
+                    ) AS row_num
+                FROM reply 
+                WHERE from_user_id = ? OR to_user_id = ? -- 選跟 user_id 有關的 reply
+            )
+            SELECT other_user_id, post_id, message, create_time
+            FROM LatestReplies
+            WHERE row_num = 1
+            ORDER by create_time DESC -- 降序，新到舊
+            """,
+            (user_id, user_id, user_id, user_id)
         )
 
         replies = cursor.fetchall()
         reply_datas = []
+
         for reply in replies:
             reply_data = {
-                "post_id": reply[0],
-                "from_user_id": reply[1],
-                "to_user_id": reply[2],
-                "message": reply[3],
-                "reply_time": reply[4]
+                "other_user_id": reply[0],
+                "post_id": reply[1],
+                "message": reply[2],
+                "reply_time": reply[3]
             }
             reply_datas.append(reply_data)
+
         return reply_datas

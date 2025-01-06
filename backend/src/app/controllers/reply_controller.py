@@ -30,18 +30,6 @@ class ReplyController:
             logging.error(f"Error adding reply: {str(e)}")
             return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
     
-    def private_message(self):
-        logging.info("----Reply_controller.private_message----")
-
-        # TODO: 實現一對一留言邏輯
-        return jsonify({"message": "Private message sent successfully"})
-    
-    def reply_notification(self):
-        logging.info("----Reply_controller.reply_notification----")
-
-        # TODO: 實現回應通知邏輯
-        return jsonify({"message": "Reply notification sent successfully"})
-    
     def history(self):
         logging.info("----Reply_controller.history----")
         data = request.get_json()
