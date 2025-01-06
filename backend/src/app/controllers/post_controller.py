@@ -32,9 +32,9 @@ class PostController:
         
         post = PostService.get_post(post_id)
 
-        book_id = PostService.update_post_book(post_id, book_id)['book_id'] if book_id else post["book_id"]
-        book_condition = PostService.update_post_book_condition(post_id, book_condition)['book_condition'] if book_condition else post["book_condition"]
-        price = PostService.update_post_price(post_id, price)['price'] if price else post["price"]
+        book_id = post["book_id"] if book_id is None else PostService.update_post_book(post_id, book_id)['book_id']
+        book_condition = post["book_condition"] if book_condition is None else PostService.update_post_book_condition(post_id, book_condition)['book_condition'] 
+        price = post["price"] if price is None else PostService.update_post_price(post_id, price)['price']
 
         post = {
             "post_id" : post_id,
@@ -61,20 +61,11 @@ class PostController:
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
         post = PostService.get_post(post_id)
-        if post is None:
-            raise ResourceNotFoundError("Unable to find the target post with the specified post_id")
         return post, 200
     
     def get_all_post(self):
         logging.info("----Post_controller.get_all_post----")
         book_id = request.args.get('book_id')
-        if book_id:
-            post_list = PostService.get_all_post_by_book(book_id)
-        else:
-            post_list = PostService.get_all_post()
-
-        if post_list is None:
-            raise ResourceNotFoundError("Unable to find the post_list")
-        
+        post_list = PostService.get_all_post() if book_id is None else PostService.get_all_post_by_book(book_id)
         return post_list, 200
     

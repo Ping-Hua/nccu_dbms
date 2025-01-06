@@ -9,8 +9,8 @@ class PostService:
     def add_post(cursor, seller_user_id, book_id, book_condition, price):
         logging.info('info', 'add_post called with parameters: seller_user_id={seller_user_id}, book_id={book_id}, book_condition={book_condition}, price={price}')
         
-        if not all([seller_user_id, book_id, book_condition]):
-            raise ValidationError("Missing required fields: seller_user_id, book_id, book_condition")
+        if any(v is None for v in [seller_user_id, book_id, book_condition]):
+            raise ValidationError("Missing required fields: seller_user_id, book_id or book_condition")
         if not isinstance(price, (int, float)) or price <= 0:
             raise ValidationError("Price must be a positive integer")
         
