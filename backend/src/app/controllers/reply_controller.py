@@ -30,18 +30,6 @@ class ReplyController:
             logging.error(f"Error adding reply: {str(e)}")
             return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
     
-    def private_message(self):
-        logging.info("----Reply_controller.private_message----")
-
-        # TODO: 實現一對一留言邏輯
-        return jsonify({"message": "Private message sent successfully"})
-    
-    def reply_notification(self):
-        logging.info("----Reply_controller.reply_notification----")
-
-        # TODO: 實現回應通知邏輯
-        return jsonify({"message": "Reply notification sent successfully"})
-    
     def history(self):
         logging.info("----Reply_controller.history----")
         data = request.get_json()
@@ -60,5 +48,25 @@ class ReplyController:
         except Exception as e:
             logging.error(f"Error getting reply history: {str(e)}")
             return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+        
+    def user_history(self):
+        logging.info("----Reply_controller.user_history----")
+        user_id = request.args.get('user_id')
+        
+        if not user_id:
+            return jsonify({"error": "Missing required fields: user_id"}), 400
+        
+        try:
+            reply_history = ReplyService.get_user_all_history(user_id)
+
+            if not reply_history:
+                return jsonify({"message": f"No reply history found for the userID: {user_id}.", "reply_history": []}), 200
+            
+            return jsonify({ "reply_history" : reply_history }), 200
+        
+        except Exception as e:
+            logging.error(f"Error getting user's reply history: {str(e)}")
+            return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
 
 reply_controller = ReplyController()
