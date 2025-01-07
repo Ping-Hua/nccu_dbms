@@ -136,6 +136,7 @@ class PostService:
             }
             post_json.append(post_data)
         return post_json
+    @use_db
     def service_delete_post(cursor, post_id):
         # 查找貼文
         cursor.execute('SELECT post_id, seller_user_id FROM post WHERE post_id = ?', (post_id,))
