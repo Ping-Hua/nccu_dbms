@@ -1,6 +1,5 @@
-from app.database import use_db,get_db
+from app.database import use_db
 import logging
-import json
 
 class PostService:
     @staticmethod
