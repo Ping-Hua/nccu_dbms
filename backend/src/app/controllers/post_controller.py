@@ -95,3 +95,4 @@ class PostController:
             post_list = PostService.get_all_post()
         return post_list, 200
     
+post_controller = PostController()

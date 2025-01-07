@@ -27,13 +27,13 @@ CREATE TABLE post (
 
 CREATE TABLE book (
     book_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ISBN INTEGER, -- pk?
-    book_name TEXT, -- not null
-    author TEXT, --not null
+    book_name  TEXT NOT NULL,
+    ISBN TEXT ,--NOT NULL UNIQUE, -- ISBN 不可重複且必填
+    author TEXT NOT NULL, -- 作者必填
     version TEXT, -- not null
-    public_year YEAR, -- not null
+    public_year INTEGER ,-- not null
     publisher TEXT, --not null
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP -- 自動生成建立時間
 );
 
 CREATE TABLE genre (
