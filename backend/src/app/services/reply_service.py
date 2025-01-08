@@ -70,10 +70,12 @@ class ReplyService:
                 FROM reply 
                 WHERE from_user_id = ? OR to_user_id = ? -- 選跟 user_id 有關的 reply
             )
-            SELECT other_user_id, post_id, message, create_time
-            FROM LatestReplies
-            WHERE row_num = 1
-            ORDER by create_time DESC -- 降序，新到舊
+            SELECT lr.other_user_id, lr.post_id, lr.message, lr.create_time, b.book_name
+            FROM LatestReplies lr
+            LEFT JOIN post p ON lr.post_id = p.post_id -- jlin reply & post 表
+            LEFT JOIN book b ON p.book_id = b.book_id -- join book & post 表
+            WHERE lr.row_num = 1
+            ORDER by lr.create_time DESC -- 降序，新到舊
             """,
             (user_id, user_id, user_id, user_id)
         )
@@ -86,7 +88,8 @@ class ReplyService:
                 "other_user_id": reply[0],
                 "post_id": reply[1],
                 "message": reply[2],
-                "reply_time": reply[3]
+                "reply_time": reply[3],
+                "book_name": reply[4]  
             }
             reply_datas.append(reply_data)
 
