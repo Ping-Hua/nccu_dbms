@@ -3,6 +3,7 @@ import logging
 import json
 from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
 
+
 class PostService:
     @staticmethod
     @use_db
@@ -147,3 +148,20 @@ class PostService:
             }
             post_json.append(post_data)
         return post_json
+    @use_db
+    def service_delete_post(cursor, post_id):
+        # 查找貼文
+        cursor.execute('SELECT post_id, seller_user_id FROM post WHERE post_id = ?', (post_id,))
+        post = cursor.fetchone()
+        if post is None:
+            logging.warning(f"Post with post_id {post_id} does not exist.")
+            return None  # 貼文不存在
+        # 刪除貼文
+        cursor.execute('DELETE FROM post WHERE post_id = ?', (post_id,))
+        # 回傳刪除的貼文資訊
+        deleted_post = {
+            "post_id": post[0],  # 第一個欄位:post id
+            "seller_user_id": post[1]  # 第二個欄位:user id 
+        }
+        logging.info(f"Post with post_id {post_id} deleted successfully.")
+        return deleted_post
