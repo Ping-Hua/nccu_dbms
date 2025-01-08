@@ -90,4 +90,4 @@ class ReplyService:
             }
             reply_datas.append(reply_data)
 
-        return reply_datas
+        return {"reply_history" : reply_datas, "total_reply_count": len(reply_datas)}

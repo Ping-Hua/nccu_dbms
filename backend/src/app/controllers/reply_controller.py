@@ -32,17 +32,15 @@ class ReplyController:
     
     def history(self):
         logging.info("----Reply_controller.history----")
-        data = request.get_json()
-        seller_user_id = data.get('seller_user_id') # 貼文 user 的 userId
-        buyer_user_id = data.get('buyer_user_id') # 回應者的 user 的 userId
-        post_id = data.get('post_id') # 貼文的 ID
+        seller_user_id = request.args.get('seller_user_id') 
+        buyer_user_id = request.args.get('buyer_user_id') 
+        post_id = request.args.get('post_id') # 貼文的 ID
         
         if not all([seller_user_id, buyer_user_id, post_id]):
-            return jsonify({"error": "Missing required fields: from_user_id, to_user_id, post_id, message"}), 400
+            return jsonify({"error": "Missing required fields: seller_user_id, buyer_user_id, post_id"}), 400
         
         try:
             reply_history = ReplyService.get_reply_history(seller_user_id, buyer_user_id, post_id)
-            print(reply_history)
             return jsonify({ "reply_history" : reply_history }), 201
         
         except Exception as e:
@@ -62,7 +60,7 @@ class ReplyController:
             if not reply_history:
                 return jsonify({"message": f"No reply history found for the userID: {user_id}.", "reply_history": []}), 200
             
-            return jsonify({ "reply_history" : reply_history }), 200
+            return jsonify({ "reply_history" : reply_history["reply_history"], "total_reply_count": reply_history["total_reply_count"]}), 200
         
         except Exception as e:
             logging.error(f"Error getting user's reply history: {str(e)}")
