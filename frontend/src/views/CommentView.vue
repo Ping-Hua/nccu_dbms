@@ -100,7 +100,7 @@ onMounted(async () => {
         <! ---- 留言板列表 ---->
         <div 
             class="comment-board pe-3 border-end" 
-            style="width:30% ; overflow-y: auto; background-color: #f8f9fa; height: 100%; border: 2px solid #343a40; border-radius: 10px;" 
+            style="width:30% ; overflow-y: auto; background-color: #f8f9fa; height: 100%; border: 2px solid #343a40;" 
         >
             <div class="comment-board-header">
                 <h5 class="m-0 pt-3 pb-2 ps-2">留言板列表</h5>
@@ -123,7 +123,7 @@ onMounted(async () => {
                 </strong>
 
                 <!-- message -->
-                <p class="m-0">{{ comment.message }}</p>
+                <p class="m-0 text-truncate">{{ comment.message }}</p>
             </div>
             <!-- 沒有留言 -->
             <div 
@@ -193,5 +193,12 @@ onMounted(async () => {
 .flex-fill {
   flex: 1 1 auto; 
   height: 100%;   
+}
+
+<style>
+.text-truncate {
+  white-space: nowrap; /* 不換行 */
+  overflow: hidden;    /* 隱藏溢出文字 */
+  text-overflow: ellipsis; /* 超出部分顯示為 ... */
 }
 </style>
