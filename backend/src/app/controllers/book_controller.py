@@ -58,8 +58,24 @@ class BookController:
     
     def search_books(self):
         logging.info("----Book_controller.search_books----")
+        user_query = request.args.get("query")  # 假設從查詢參數中獲取查詢query
+        if user_query is None or len(user_query) == 0:
+            logging.warning("Book name is missing in the request.")
+            return jsonify({"success": False, "error": "Book name is required"}), 400
 
-        # TODO: 實現書籍搜尋邏輯
-        return jsonify({"message": "Books searched successfully", "books": []})
+        try:
+             # 使用實例化的 Service 來調用 search 方法
+            book_service = BookService()
+            searching = book_service.search(user_query)
+            if searching is not None and len(searching) > 0:
+                logging.info(f"Books with query '{user_query}' retrieved successfully.")
+                return jsonify({"success": True, "message": "Books searched successfully", "book": searching}), 200
+                 
+            else:
+                logging.warning(f"Attempted to search non-existent book with  {user_query}")
+                return jsonify({"success": False, "error": "Books not found"}),404
+        except Exception as e:
+            logging.error(f"Error occurred while searching book with {user_query}: {str(e)}")
+            return jsonify({"success": False, "error": str(e)}),500
     
 book_controller = BookController()
