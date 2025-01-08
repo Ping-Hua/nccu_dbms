@@ -29,6 +29,10 @@ class BookController:
                 'public_year': book['public_year'],
                 'publisher': book['publisher']
             }), 201
+        
+        except ValueError as e:  
+            logging.warning(str(e))
+            return jsonify({"error": str(e)}), 400
 
         except Exception as e:
             logging.error(f"Error adding book: {str(e)}")

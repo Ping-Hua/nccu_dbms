@@ -7,6 +7,14 @@ class BookService:
     def adding_book(cursor, ISBN, book_name, author, version, public_year, publisher):
         logging.info('info', 'adding book called with parameter: ISBN={ISBN}, book_name={book_name}, author={author}, version={version}, public_year={public_year}, publisher={publisher}')
         
+        # 判斷 ISBN 唯一
+        cursor.execute(
+            "SELECT COUNT(*) FROM book WHERE ISBN = ?", (ISBN,))
+        result = cursor.fetchone()
+
+        if result[0] > 0:
+            raise ValueError(f"ISBN: {ISBN} already exists in the database.")
+
         cursor.execute(
             "INSERT INTO book (ISBN, book_name, author, version, public_year, publisher) VALUES (?, ?, ?, ?, ?, ?)", 
             (ISBN, book_name, author, version, public_year, publisher)
