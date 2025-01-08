@@ -28,7 +28,7 @@ CREATE TABLE post (
 CREATE TABLE book (
     book_id INTEGER PRIMARY KEY AUTOINCREMENT,
     book_name  TEXT NOT NULL,
-    ISBN TEXT ,--NOT NULL UNIQUE, -- ISBN 不可重複且必填
+    ISBN TEXT UNIQUE NOT NULL, -- ISBN 不可重複且必填
     author TEXT NOT NULL, -- 作者必填
     version TEXT, -- not null
     public_year INTEGER ,-- not null
