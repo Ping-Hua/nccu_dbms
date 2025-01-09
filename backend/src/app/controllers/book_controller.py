@@ -1,13 +1,35 @@
-from flask import jsonify
+from flask import jsonify, request
 import logging
+from app.services.book_service import BookService
 
 class BookController:
     def add_book(self):
         logging.info("----Book_controller.add_book----")
 
-        # TODO: 實現新增書籍邏輯
-        return jsonify({"message": "Book added successfully"})
-    
+        data = request.get_json()
+
+        isbn = data.get('ISBN')
+        book_name = data.get('book_name')
+        author = data.get('author') 
+        version = data.get('version')
+        public_year = data.get('public_year')
+        publisher = data.get('publisher')
+        book_picture_url = data.get('book_picture_url')
+        genre_id = data.get('genre_id')
+
+        book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher, book_picture_url, genre_id)
+        return jsonify({
+            'book_id': book['book_id'],
+            'ISBN': book['ISBN'],
+            'book_name': book['book_name'],
+            'author': book['author'],
+            'version': book['version'],
+            'public_year': book['public_year'],
+            'publisher': book['publisher'],
+            'book_picture_url' : book['book_picture_url'],
+            "genre_id": book['genre_id']
+        }), 201
+        
     def update_book(self):
         logging.info("----Book_controller.update_book----")
 
@@ -20,12 +42,14 @@ class BookController:
         # TODO: 實現獲得書籍資料邏輯
         return jsonify({"message": "Books retrieved successfully", "books": []})
     
-    def list_books(self):
+    def get_booklist(self):
         logging.info("----Book_controller.list_books----")
 
         # TODO: 實現獲得書籍列表邏輯
-        return jsonify({"message": "Books listed successfully", "books": []})
-    
+        genre_id = request.args.get('genre_id')
+        book_list = BookService.get_all_books() if genre_id is None else BookService.get_all_books_by_genre(genre_id)
+        return book_list, 200
+
     def search_books(self):
         logging.info("----Book_controller.search_books----")
 

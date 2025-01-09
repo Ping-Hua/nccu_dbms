@@ -1,23 +1,59 @@
-from flask import jsonify
+from flask import jsonify, request
 import logging
+from app.services.post_service import PostService
+from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
 
 class PostController:
     def add_post(self):
-        logging.info("----Post_controller.add_post----")
+        logging.info("----post_controller.add_post----")
+        
+        data = request.get_json()
+        seller_user_id = data.get('seller_user_id')
+        book_id = data.get('book_id')
+        book_condition = data.get('book_condition')
+        price = data.get('price')
+        
+        post = PostService.add_post(seller_user_id, book_id, book_condition, price)
+        return jsonify({
+            'post_id': post['post_id'],
+            'seller_user_id': post['seller_user_id'],
+            'book_id': post['book_id'],
+            'book_condition': post['book_condition'],
+            'price': post['price'],
+        }), 201
 
-        # TODO: 實現新增貼文邏輯
-        return jsonify({"message": "Post added successfully"})
-    
     def update_post(self):
         logging.info("----Post_controller.update_post----")
+        data = request.get_json()
+        post_id = data.get('post_id')
+        book_id = data.get('book_id')
+        book_condition = data.get('book_condition')
+        price = data.get('price')
+        
+        post = PostService.get_post(post_id)
 
-        # TODO: 實現修改貼文邏輯
-        return jsonify({"message": "Post updated successfully"})
+        book_id = post["book_id"] if book_id is None else PostService.update_post_book(post_id, book_id)['book_id']
+        book_condition = post["book_condition"] if book_condition is None else PostService.update_post_book_condition(post_id, book_condition)['book_condition'] 
+        price = post["price"] if price is None else PostService.update_post_price(post_id, price)['price']
+
+        post = {
+            "post_id" : post_id,
+            "book_id" : book_id,
+            "book_condition" : book_condition,
+            "price" : price
+        }
+
+        return post, 201 
+
+    def get_post(self, post_id):
+        logging.info("----Post_controller.get_post----")
+        post = PostService.get_post(post_id)
+        return post, 200
     
-    def delete_post(self):
-        logging.info("----Post_controller.delete_post----")
-
-        # TODO: 實現刪除貼文邏輯
-        return jsonify({"message": "Post deleted successfully"})
+    def get_all_post(self):
+        logging.info("----Post_controller.get_all_post----")
+        book_id = request.args.get('book_id')
+        post_list = PostService.get_all_post() if book_id is None else PostService.get_all_post_by_book(book_id)
+        return post_list, 200
     
 post_controller = PostController()
