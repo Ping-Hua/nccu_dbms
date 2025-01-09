@@ -14,30 +14,22 @@ class BookController:
         version = data.get('version')
         public_year = data.get('public_year')
         publisher = data.get('publisher')
+        book_picture_url = data.get('book_picture_url')
+        genre_id = data.get('genre_id')
 
-        if not all([isbn, book_name, author, version, public_year, publisher]):
-            return jsonify({"error": "Missing required fields: ISBN, book_name, author, version, public_year, publisher"}), 400
+        book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher, book_picture_url, genre_id)
+        return jsonify({
+            'book_id': book['book_id'],
+            'ISBN': book['ISBN'],
+            'book_name': book['book_name'],
+            'author': book['author'],
+            'version': book['version'],
+            'public_year': book['public_year'],
+            'publisher': book['publisher'],
+            'book_picture_url' : book['book_picture_url'],
+            "genre_id": book['genre_id']
+        }), 201
         
-        try:
-            book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher)
-            return jsonify({
-                'book_id': book['book_id'],
-                'ISBN': book['ISBN'],
-                'book_name': book['book_name'],
-                'author': book['author'],
-                'version': book['version'],
-                'public_year': book['public_year'],
-                'publisher': book['publisher']
-            }), 201
-        
-        except ValueError as e:  
-            logging.warning(str(e))
-            return jsonify({"error": str(e)}), 400
-
-        except Exception as e:
-            logging.error(f"Error adding book: {str(e)}")
-            return jsonify({"success": False, "error": str(e)}),500
-    
     def update_book(self):
         logging.info("----Book_controller.update_book----")
 
@@ -50,12 +42,14 @@ class BookController:
         # TODO: 實現獲得書籍資料邏輯
         return jsonify({"message": "Books retrieved successfully", "books": []})
     
-    def list_books(self):
+    def get_booklist(self):
         logging.info("----Book_controller.list_books----")
 
         # TODO: 實現獲得書籍列表邏輯
-        return jsonify({"message": "Books listed successfully", "books": []})
-    
+        genre_id = request.args.get('genre_id')
+        book_list = BookService.get_all_books() if genre_id is None else BookService.get_all_books_by_genre(genre_id)
+        return book_list, 200
+
     def search_books(self):
         logging.info("----Book_controller.search_books----")
         user_query = request.args.get("query")  # 假設從查詢參數中獲取查詢query

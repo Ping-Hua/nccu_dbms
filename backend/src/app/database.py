@@ -4,6 +4,7 @@ import os
 import click
 from flask import current_app, g
 import logging
+from app.errors.custom_exceptions import DatabaseError
 
 def get_db():
     if 'db' not in g:
@@ -30,13 +31,13 @@ def use_db(func):
             result = func(cursor, *args, **kwargs)
             db.commit()
             return result
-        except ValueError as e:
+        except sqlite3.DatabaseError as e:
             db.rollback()
-            logging.warning(f"Validation error: {str(e)}")
-            raise e
+            logging.warning(f"Database error: {str(e)}")
+            raise DatabaseError(message=f"Database error: {str(e)}")
         except Exception as e:
             db.rollback()
-            logging.error(f"Database error: {str(e)}")
+            logging.error(f"Unexpected error: {str(e)}")
             raise e
         finally:
             close_db()
