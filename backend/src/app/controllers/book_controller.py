@@ -14,30 +14,20 @@ class BookController:
         version = data.get('version')
         public_year = data.get('public_year')
         publisher = data.get('publisher')
+        book_picture_url = data.get('book_picture_url')
 
-        if not all([isbn, book_name, author, version, public_year, publisher]):
-            return jsonify({"error": "Missing required fields: ISBN, book_name, author, version, public_year, publisher"}), 400
+        book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher, book_picture_url)
+        return jsonify({
+            'book_id': book['book_id'],
+            'ISBN': book['ISBN'],
+            'book_name': book['book_name'],
+            'author': book['author'],
+            'version': book['version'],
+            'public_year': book['public_year'],
+            'publisher': book['publisher'],
+            'book_picture_url' : book['book_picture_url']
+        }), 201
         
-        try:
-            book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher)
-            return jsonify({
-                'book_id': book['book_id'],
-                'ISBN': book['ISBN'],
-                'book_name': book['book_name'],
-                'author': book['author'],
-                'version': book['version'],
-                'public_year': book['public_year'],
-                'publisher': book['publisher']
-            }), 201
-        
-        except ValueError as e:  
-            logging.warning(str(e))
-            return jsonify({"error": str(e)}), 400
-
-        except Exception as e:
-            logging.error(f"Error adding book: {str(e)}")
-            return jsonify({"success": False, "error": str(e)}),500
-    
     def update_book(self):
         logging.info("----Book_controller.update_book----")
 

@@ -33,6 +33,7 @@ CREATE TABLE book (
     version TEXT, -- not null
     public_year INTEGER ,-- not null
     publisher TEXT, --not null
+    book_picture_url TEXT,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP -- 自動生成建立時間
 );
 
