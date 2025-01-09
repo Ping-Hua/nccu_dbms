@@ -5,7 +5,8 @@ from app.routes.book_routes import book_bp
 from app.routes.post_routes import post_bp
 from app.routes.reply_routes import reply_bp
 from app.routes.home_routes import home_bp
-from . import database
+from app.errors import error_handler
+from app import database
 from flask_cors import CORS
 
 def create_app():
@@ -16,9 +17,10 @@ def create_app():
     #     SECRET_KEY='dev',
     #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     # )
-
     app.config['DATABASE'] = 'database.db'
     database.init_app(app)
+
+    error_handler.register_error_handlers(app)
     # a simple page that says hello
     @app.route('/hello')
     def hello():

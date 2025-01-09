@@ -1,9 +1,12 @@
 from app.database import use_db
 import logging
-
+from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
 class ReplyService:
     @use_db
     def add_reply(cursor, from_user_id, to_user_id, post_id, message):
+        if not all([from_user_id, to_user_id, post_id, message]):
+            raise ValidationError("Missing required fields: from_user_id, to_user_id, post_id, message")
+
         cursor.execute(
             "INSERT INTO reply (from_user_id, to_user_id, post_id, message) VALUES (?, ?, ?, ?)", 
             (from_user_id, to_user_id, post_id, message)
@@ -29,6 +32,9 @@ class ReplyService:
         
     @use_db
     def get_reply_history(cursor, seller_user_id, buyer_user_id, post_id):
+        if not all([seller_user_id, buyer_user_id, post_id]):
+            raise ValidationError("Missing required fields: from_user_id, to_user_id, post_id, message")
+        
         cursor.execute(
             "SELECT reply_id, from_user_id, to_user_id, post_id, message, create_time "
             "FROM reply WHERE post_id = ? AND ((from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?))"
@@ -37,6 +43,10 @@ class ReplyService:
         )
 
         replies = cursor.fetchall()
+
+        if replies is None:
+            raise ResourceNotFoundError("Unable to get reply list")
+
         reply_datas = []
         for reply in replies:
             reply_data = {
