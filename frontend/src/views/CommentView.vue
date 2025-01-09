@@ -162,7 +162,7 @@ onMounted(async () => {
                                 {{ message.message }}
                             </div>
                             <div class="message-time-self">
-                                {{ new Date(message.reply_time).toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
+                                {{ new Date(message.reply_time + 'Z').toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
                             </div>
                         </div>
 
@@ -175,7 +175,7 @@ onMounted(async () => {
                                 {{ message.message }}
                             </div>
                             <div class="message-time-other">
-                                {{ new Date(message.reply_time).toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
+                                {{ new Date(message.reply_time + 'Z').toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
                             </div>
                         </div>
                     </div>
