@@ -1,33 +1,77 @@
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 import { useRouter } from 'vue-router';
+
+const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 
 const router = useRouter();
 
 const email = ref('');
 const password = ref('');
+const username = ref('');
 const studentNumber = ref('');
 const phone = ref('');
 
 const emits = defineEmits(['close', 'open-login']);
 
-const handleSubmit = () => {
-    if (!studentNumber.value || studentNumber.value.length !== 9) {
-      alert('Please enter a valid student number.');
-      return;
+// ---- 註冊 ----
+const Register = async () => {
+    console.log("Register new user");
+    try {
+        const payload = {
+            email: email.value,
+            password: password.value,
+            user_name: username.value,
+            student_number: studentNumber.value,
+            phone: phone.value
+        };
+
+        const { data } = await axios.post(`${apiUrl}/auth/register` , payload);
+        console.log("Register successfully");
+    } catch (error) {
+        console.error("Register failed:", error.message);
     }
-    if (!phone.value || phone.value.length !== 10) {
-      alert('Please enter a valid phone number.');
-      return;
+};
+
+const handleSubmit = async () => {
+    
+    if (!email.value.trim() || !password.value.trim()) {
+        alert('Email and Password are required.');
+        return;
     }
 
-    console.log(`Email: ${email.value}, Password: ${password.value}, Student Number: ${studentNumber.value}, Phone: ${phone.value}`);
-    email.value = '';
-    password.value = '';
-    studentNumber.value = '';
-    phone.value = '';
-    emits('close');
-    emits('open-login');
+    if (!studentNumber.value || studentNumber.value.length !== 9) {
+        alert('Please enter a valid student number.');
+        return;
+    }
+
+    if (!username.value.trim()) {
+        alert('User Name is required.');
+        return;
+    }
+
+    if (!phone.value || phone.value.length !== 10) {
+        alert('Please enter a valid phone number.');
+        return;
+    }
+
+    try {
+        await Register();
+
+        // 清空
+        email.value = '';
+        password.value = '';
+        username.value = '';
+        studentNumber.value = '';
+        phone.value = '';
+
+        emits('close');
+        emits('open-login');
+    } catch (error) {
+        console.error("Register failed:", error.message);
+        alert("Registration failed. Please try again.");
+    }
 };
 
 const closeModal = () => {
@@ -51,6 +95,9 @@ const closeModal = () => {
             </div>
             <div class="col-md-6">
                 <input type="text" class="form-control" id="phone" v-model="phone" placeholder="Phone">
+            </div>
+            <div class="mb-2">
+                <input type="username" class="form-control" id="username" v-model="username" placeholder="User Name">
             </div>
             <button type="submit" class="btn btn-secondary" id="register-btn">Register</button>
          </form>
