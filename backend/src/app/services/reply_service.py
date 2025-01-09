@@ -12,12 +12,18 @@ class ReplyService:
         reply_id = cursor.lastrowid
         logging.info(f"Reply added successfully: {reply_id}")
 
+        # 新增回應時間
+        cursor.execute("SELECT create_time FROM reply WHERE reply_id = ?", (reply_id,))
+        create_time_row = cursor.fetchone()
+        reply_time = create_time_row['create_time'] if create_time_row else None
+
         reply_data = {
             "reply_id": reply_id,
             "from_user_id": from_user_id,
             "to_user_id": to_user_id,
             "post_id": post_id,
             "message": message,
+            "reply_time": reply_time,
         }
         return reply_data
         
