@@ -36,19 +36,12 @@ class ReplyController:
         logging.info("----Reply_controller.user_history----")
         user_id = request.args.get('user_id')
         
-        if not user_id:
-            return jsonify({"error": "Missing required fields: user_id"}), 400
-        
-        try:
-            reply_history = ReplyService.get_user_all_history(user_id)
+        reply_history = ReplyService.get_user_all_history(user_id)
 
-            if not reply_history:
-                return jsonify({"message": f"No reply history found for the userID: {user_id}.", "reply_history": []}), 200
+        if not reply_history:
+            return jsonify({"message": f"No reply history found for the userID: {user_id}.", "reply_history": []}), 200
             
-            return jsonify({ "reply_history" : reply_history["reply_history"], "total_reply_count": reply_history["total_reply_count"]}), 200
-        
-        except Exception as e:
-            logging.error(f"Error getting user's reply history: {str(e)}")
-            return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+        return jsonify({ "reply_history" : reply_history["reply_history"], "total_reply_count": reply_history["total_reply_count"]}), 200
+
 
 reply_controller = ReplyController()

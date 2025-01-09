@@ -62,6 +62,9 @@ class ReplyService:
     
     @use_db
     def get_user_all_history(cursor,user_id):
+        if not user_id:
+            raise ValidationError("Missing required fields: user_id")
+
         cursor.execute(
             """ 
             -- （user_id, post_id） 分組、編號
