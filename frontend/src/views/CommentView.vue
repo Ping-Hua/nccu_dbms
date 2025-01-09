@@ -149,7 +149,7 @@ onMounted(async () => {
             </div>
 
             <!-- 顯示留言內容 -->
-            <div v-else class="message-container px-3 py-2 overflow-auto" ref="messagesContainer">
+            <div v-else class="message-container px-3 pt-2 pb-5 overflow-auto">
                 <transition-group name="fade" tag="div">
                     <div 
                         class="message d-flex flex-column"
@@ -157,19 +157,25 @@ onMounted(async () => {
                         :key="index"
                     >
                         <!-- 自己的訊息 -->
-                        <div v-if="message.from_user_id === userID" class="d-flex justify-content-end mb-3">
-                            <div class="message-body bg-secondary text-white p-2 rounded text-end float-end">
+                        <div v-if="message.from_user_id === userID" class="d-flex flex-column align-items-end mb-3">
+                            <div class="message-body-self bg-secondary text-white">
                                 {{ message.message }}
+                            </div>
+                            <div class="message-time-self">
+                                {{ new Date(message.reply_time).toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
                             </div>
                         </div>
 
                         <!-- 對方的訊息 -->
-                        <div v-else class="d-flex justify-content-start mb-3">
-                            <div class="d-flex flex-column align-items-start">
-                                <strong style="font-size: 0.85rem; margin-bottom: 5px;">{{ message.from_user_id }}</strong>
-                                <div class="message-body bg-secondary text-white p-2 rounded">
+                        <div v-else class="d-flex flex-column align-items-start mb-3">
+                            <div class="message-header align-items-start">
+                                <strong style="font-size: 0.85rem; margin-bottom: 5px; text-align: left;">{{ message.from_user_id }}</strong>
+                            </div>
+                            <div class="message-body-other bg-secondary text-white">
                                 {{ message.message }}
-                                </div>
+                            </div>
+                            <div class="message-time-other">
+                                {{ new Date(message.reply_time).toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) }}
                             </div>
                         </div>
                     </div>
@@ -177,7 +183,8 @@ onMounted(async () => {
             </div>
 
             <!-- 留言輸入欄 -->
-            <div v-if="selectedPostId" class="input-group mt-2" style="position: absolute; bottom: 20px; width: 68%;">
+            <div v-if="selectedPostId" class="input-group mt-2" 
+                style="position: fixed; bottom: 0; width: calc(100% - 30%); left: 30%; background-color: white; padding: 10px; z-index: 10; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);">
                 <input v-model="newMessage" type="text" class="form-control" placeholder="輸入您的回覆..." style="border-radius: 15px; padding: 10px;">
                 <button 
                     class="btn btn-secondary" @click="addReply" 
@@ -195,10 +202,43 @@ onMounted(async () => {
   height: 100%;   
 }
 
-<style>
 .text-truncate {
   white-space: nowrap; /* 不換行 */
   overflow: hidden;    /* 隱藏溢出文字 */
   text-overflow: ellipsis; /* 超出部分顯示為 ... */
+}
+
+.message-body-self,
+.message-body-other {
+    max-width: 70%;
+    width: auto;
+    word-break: break-word;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: left;
+    display: inline-block;
+}
+
+.message-time-self {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 5px;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.message-time-other {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 5px;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.input-group {
+    background-color: white;
+    z-index: 10;
 }
 </style>
