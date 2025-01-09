@@ -40,3 +40,31 @@ class AuthService:
             "phone": phone,
             "user_name": user_name,
         }
+
+    @staticmethod
+    @use_db
+    def login(cursor, email, password):
+        logging.info(f"Login user called with email={email}")
+
+        if any(v is None for v in [email, password]):
+            raise ValidationError("Missing required fields: email, password")
+
+        # 確認 Email 存在
+        cursor.execute("SELECT user_id, email, password FROM user WHERE email = ?", (email,))
+        user = cursor.fetchone()
+
+        if user is None:
+            raise ResourceNotFoundError(f"Invalid email or password.")
+        
+        user_id, user_email, hashed_password = user
+        
+        # 驗證 password
+        if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+            raise ValidationError("Invalid email or password.")
+
+        logging.info(f"User {user_id} logged in successfully")
+
+        return {
+            "user_id": user_id,
+            "email": user_email,
+        }

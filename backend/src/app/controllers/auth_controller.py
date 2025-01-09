@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, session
 import logging
 from app.services.auth_service import AuthService
 
@@ -24,15 +24,32 @@ class AuthController:
     
     def login(self):
         logging.info("----Auth_controller.login----")
-        ## TODO: 實現登入邏輯
-         
-        return jsonify({"message": "User logged in successfully"})
+        
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+
+        login = AuthService.login(email, password)
+
+        session['user_id'] = login['user_id']
+        session['email'] = login['email']
+
+        return jsonify({
+            'message': 'Login successful' ,
+            'user': {
+            'user_id': login['user_id'],
+            'email': login['email'],
+            }
+        }), 200
     
     def logout(self):
         logging.info("----Auth_controller.logout----")
-        ## TODO: 實現登出邏輯
+        
+        session.clear()
+        logging.info("User logged out, session cleared")
          
-        return jsonify({"message": "User logged out successfully"})
+        return jsonify({
+            "message": "Logout successfully"}), 200
     
 
 auth_controller = AuthController()
