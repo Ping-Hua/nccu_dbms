@@ -4,6 +4,7 @@ from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
 from app.routes.post_routes import post_bp
 from app.routes.reply_routes import reply_bp
+from app.routes.genre_routes import genre_bp
 from app.routes.home_routes import home_bp
 from app.errors import error_handler
 from app import database
@@ -31,5 +32,6 @@ def create_app():
     app.register_blueprint(book_bp, url_prefix='/api/v1/book')
     app.register_blueprint(post_bp, url_prefix='/api/v1/post')
     app.register_blueprint(reply_bp, url_prefix='/api/v1/reply')
+    app.register_blueprint(genre_bp, url_prefix='/api/v1/genre')
     
     return app
