@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, request
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
 from app.routes.post_routes import post_bp
@@ -8,11 +8,14 @@ from app.routes.home_routes import home_bp
 from app.errors import error_handler
 from app import database
 from flask_cors import CORS
+from app.middlewares.cors import cors_middleware
 
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    CORS(app)
+    cors_middleware(app)
+    #CORS(app , supports_credentials=True, origins=["http://localho.st:5173"])       
+
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
     #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
