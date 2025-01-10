@@ -28,7 +28,8 @@ class AuthController:
                 phone = phone
             )
 
-            return jsonify({"message": "User registered successfully", "user_id": user_id}), 201
+            return jsonify({"message": "User registered successfully", "data": {**data, "user_id": user_id}}), 201
+
         except Exception as e:
             logging.exception("Error during registration")
             return jsonify({"message": f"Error: {str(e)}"}), 500
