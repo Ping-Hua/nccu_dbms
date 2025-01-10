@@ -22,7 +22,6 @@ class AuthService:
         #if cursor.fetchone()[0] > 0:
         #    raise ValidationError(f"Student number: {student_number} already exists in the database.")
         
-        logging.info(f"Registering user with password={password}") # 開發用
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
         cursor.execute(

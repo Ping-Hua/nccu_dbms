@@ -46,11 +46,42 @@ class AuthController:
     def logout(self):
         logging.info("----Auth_controller.logout----")
         
-        session.clear()
-        logging.info("User logged out, session cleared")
+        if 'user_id' in session:
+            user_id = session.get('user_id')
+            logging.info(f"User {user_id} logged out")
+
+            session.clear()
+            logging.info("Session cleared successfully")
          
-        return jsonify({
-            "message": "Logout successfully"}), 200
+            return jsonify({
+                "message": "Logout successfully"}), 200
+        else:
+            logging.warning("Logout attempt without a valid session")
+            return jsonify({
+                "error": "No active session found",
+                "message": "You are not logged in"
+            }), 400
     
+    def check_status(self):
+        logging.info("----Auth_controller.check_status----")
+        
+        if 'user_id' in session:
+            user_id = session.get('user_id')
+            email = session.get('email')
+            logging.info(f"User {user_id} is logged in")
+
+            return jsonify({
+                'logged_in': True,
+                'user': {
+                    'user_id': user_id,
+                    'email': email
+                }
+            }), 200
+        else:
+            logging.info("No active session found")
+            return jsonify({
+                'logged_in': False,
+                'message': "No user is logged in"
+            }), 200
 
 auth_controller = AuthController()
