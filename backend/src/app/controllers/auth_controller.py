@@ -33,6 +33,7 @@ class AuthController:
 
         session['user_id'] = login['user_id']
         session['email'] = login['email']
+        session.permanent = True
 
         return jsonify({
             'message': 'Login successful' ,

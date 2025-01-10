@@ -15,7 +15,7 @@ class AuthService:
         # Email 唯一
         cursor.execute("SELECT COUNT(*) FROM user WHERE email = ?", (email,))
         if cursor.fetchone()[0] > 0:
-            raise ValidationError(f"Email: {email} already exists in the database.")
+            raise ValidationError(f"Email: {email} already exists")
 
         # 學號唯一
         #cursor.execute("SELECT COUNT(*) FROM user WHERE student_number = ?", (student_number,))

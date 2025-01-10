@@ -8,7 +8,6 @@ from app.routes.home_routes import home_bp
 from app.errors import error_handler
 from app import database
 from flask_cors import CORS
-from flask_session import Session
 
 def create_app():
     # create and configure the app
@@ -20,12 +19,12 @@ def create_app():
     # )
     
     # Session
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SESSION_FILE_DIR'] = './flask_session'
-    app.config['SESSION_PERMANENT'] = False # Session 不永久有效
-    app.config['SESSION_USE_SIGNER'] = True # Session ID
     app.config['SECRET_KEY'] = os.urandom(24)
-    Session(app)
+
+    app.config['SESSION_COOKIE_NAME'] = 'Cookie-based_session'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True 
+    app.config['SESSION_COOKIE_SECURE'] = False 
+    app.config['PERMANENT_SESSION_LIFETIME'] = 1800 # 1800 秒有效期
 
     app.config['DATABASE'] = 'database.db'
     database.init_app(app)
