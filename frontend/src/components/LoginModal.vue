@@ -1,18 +1,55 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '../api/api.js';
+import { useGlobalStore } from '../stores/global.js';
 
 const email = ref('');
 const password = ref('');
 const emits = defineEmits(['close']); 
-
 const router = useRouter();
+const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
+const globalStore = useGlobalStore();
 
-const handleSubmit = () => {
-  console.log(`Email: ${email.value}, Password: ${password.value}`);
-  email.value = ''; // 清空 email 輸入框
-  password.value = ''; // 清空 password 輸入框
-  emits('close'); // 提交後自動關閉 Modal
+
+// ---- 按鈕 disable ----
+const isLoginDisabled = computed(() => {
+    return !email.value.trim() || !password.value.trim();
+});
+
+// ---- 登入 ----
+const login = async () => {
+    console.log("loaded with login");
+    try {
+        const payload = {
+            email: email.value,
+            password: password.value,
+        };
+
+        const { data } = await api.post(`${apiUrl}/auth/login` , payload);
+        console.log("Login successfully");
+
+        globalStore.setUser(data.id, data.name);
+        return true;        
+    } catch (error) {
+        const errorMessage = error.response?.data?.messages || "An error occurred. Please try again.";
+        console.error("Login failed:", errorMessage);
+        alert(errorMessage);
+
+        return false;
+    }
+};
+
+const handleSubmit = async () => {
+    const loginSuccess = await login(); // 登入功能
+    
+    if (loginSuccess) {
+        // 清空 input-box
+        email.value = ''; 
+        password.value = '';
+
+        emits('close'); // 提交後自動關閉 Modal
+    }
 };
 
 const registerHandler = () => {
@@ -35,7 +72,7 @@ const closeModal = () => {
             <div class="row mb-3">
                 <input type="password" class="form-control" id="Password" v-model="password" placeholder="Password" />
             </div>
-            <button type="submit" class="btn btn-secondary">Login</button>
+            <button type="submit" class="btn btn-secondary" :disabled="isLoginDisabled">Login</button>
 
             <!-- Register Link -->
             <p class="register-link" data-bs-dismiss="modal" @click="registerHandler">Create new account</p>
