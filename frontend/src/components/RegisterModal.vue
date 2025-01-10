@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -15,8 +15,19 @@ const phone = ref('');
 
 const emits = defineEmits(['close', 'open-login']);
 
+// 沒填完按鈕先禁用
+const isRegisterDisabled = computed(() => {
+    return (
+        !email.value.trim() ||
+        !password.value.trim() ||
+        !username.value.trim() ||
+        !studentNumber.value.trim() ||
+        !phone.value.trim() 
+    );
+});
+
 // ---- 註冊 ----
-const Register = async () => {
+const register = async () => {
     console.log("Register new user");
     try {
         const payload = {
@@ -29,36 +40,18 @@ const Register = async () => {
 
         const { data } = await axios.post(`${apiUrl}/auth/register` , payload);
         console.log("Register successfully");
+        return true;
     } catch (error) {
-        console.error("Register failed:", error.message);
+        console.error("Register failed:", error.response?.data?.messages);
+        alert(error.response?.data?.messages || "Registration failed. Please try again.");
+        return false;
     }
 };
 
 const handleSubmit = async () => {
+    const registerSuccess = await register();
     
-    if (!email.value.trim() || !password.value.trim()) {
-        alert('Email and Password are required.');
-        return;
-    }
-
-    if (!studentNumber.value || studentNumber.value.length !== 9) {
-        alert('Please enter a valid student number.');
-        return;
-    }
-
-    if (!username.value.trim()) {
-        alert('User Name is required.');
-        return;
-    }
-
-    if (!phone.value || phone.value.length !== 10) {
-        alert('Please enter a valid phone number.');
-        return;
-    }
-
-    try {
-        await Register();
-
+    if (registerSuccess){
         // 清空
         email.value = '';
         password.value = '';
@@ -68,9 +61,6 @@ const handleSubmit = async () => {
 
         emits('close');
         emits('open-login');
-    } catch (error) {
-        console.error("Register failed:", error.message);
-        alert("Registration failed. Please try again.");
     }
 };
 
@@ -99,7 +89,7 @@ const closeModal = () => {
             <div class="mb-2">
                 <input type="username" class="form-control" id="username" v-model="username" placeholder="User Name">
             </div>
-            <button type="submit" class="btn btn-secondary" id="register-btn">Register</button>
+            <button type="submit" class="btn btn-secondary" id="register-btn" :disabled="isRegisterDisabled">Register</button>
          </form>
     </div>
   </div>
