@@ -12,13 +12,12 @@ from flask_cors import CORS
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-
     CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
     #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     # )
-    
+
     app.config['DATABASE'] = 'database.db'
     database.init_app(app)
     # a simple page that says hello
