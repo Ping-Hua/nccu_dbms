@@ -18,24 +18,24 @@
 
       <div class="main-content">
         <div class="categories">
-              <span
-                class="category"
-                :class="{ active: selectedGenre === null }"
-                @click="filterBooks(null)"
-              >
-                All
-              </span>
+          <span
+            class="category"
+            :class="{ active: selectedGenre === null }"
+            @click="filterBooks(null)"
+          >
+            All
+          </span>
+          <span
+            v-for="genre in genres"
+            :key="genre.Genre_ID"
+            class="category"
+            :class="{ active: selectedGenre === genre.Genre_ID }"
+            @click="filterBooks(genre.Genre_ID)"
+          >
+            {{ genre.GenreName }}
+          </span>
+        </div>
 
-              <span
-                v-for="genre in genres"
-                :key="genre.Genre_ID"
-                class="category"
-                :class="{ active: selectedGenre === genre.Genre_ID }"
-                @click="filterBooks(genre.Genre_ID)"
-              >
-                {{ genre.GenreName }}
-              </span>
-            </div>
         <button class="btn-add-book" @click="openISBNModal">+ Add Book</button>
       </div>
     </div>
@@ -47,10 +47,10 @@
         :key="book.ISBN"
         @click="viewBookDetails(book.ISBN)"
       >
-        <img :src="book.CoverImage" alt="Book Cover" class="book-cover" />
+        <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
         <p><b>{{ book.BookName }}</b></p>
         <p>Author: {{ book.Author }}</p>
-        <p>Public Year: {{ book.publicYear }}</p>
+        <p>Public Year: {{ book.PublicYear }}</p>
       </div>
     </div>
 
@@ -93,7 +93,7 @@
           <div class="form-group">
             <label for="isbn">ISBN:</label>
             <input type="text" id="isbn" v-model="manualBookDetails.isbn" required autocomplete="off" />
-          </div>>
+          </div>
           <div class="form-group">
             <label for="publicYear">Public Year:</label>
             <input type="text" id="publicYear" v-model="manualBookDetails.publicyear" required autocomplete="off"/>
@@ -133,7 +133,7 @@
 
 
 <script>
-import mockBooks from "../mock/mockBooks.js";
+import mockBooks from "../mock/mock.js";
 import searchIcon from "../assets/search_icon.png";
 
 export default {
@@ -159,7 +159,8 @@ export default {
     };
   },
   created() {
-    this.initializeData(); // 初始化數據
+    this.initializeData();
+    this.fetchAllBooks(); // 初始化時獲取所有書籍
   },
   
   methods: {
@@ -190,15 +191,77 @@ export default {
     this.$router.push({ name: 'post', params: { isbn } });
   },
 
-  // 按類別篩選書籍
-  filterBooks(genreId) {
-    this.selectedGenre = genreId;
-    if (genreId === null) {
-      this.books = mockBooks; // 顯示所有書籍
-    } else {
-      this.books = mockBooks.filter((book) => book.Genre_ID === genreId); // 篩選
+  async fetchAllBooks() {
+    try {
+      const response = await fetch("/api/v1/book/booklist", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch books from the server.");
+      }
+
+      const data = await response.json();
+
+      // 格式化並更新書籍數據
+      this.books = data.map((book) => ({
+        ISBN: book.ISBN,
+        BookName: book.book_name,
+        Author: book.author,
+        PublicYear: book.public_year,
+        Publisher: book.publisher,
+        BookPictureUrl: book.book_picture_url,
+        Genre: book.genre_id,
+      }));
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      alert("An error occurred while fetching the book list. Please try again.");
     }
   },
+
+  // 按類別篩選書籍
+  async filterBooks(genreId) {
+  this.selectedGenre = genreId; // 更新選中的類別
+  try {
+    let url = "/api/v1/book/booklist";
+    
+    // 如果 genreId 存在，添加 query 參數
+    if (genreId !== null) {
+      url += `?genre_id=${genreId}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch books.");
+    }
+
+    const data = await response.json();
+
+    // 更新書籍列表
+    this.books = data.map((book) => ({
+      ISBN: book.ISBN,
+      BookName: book.book_name,
+      Author: book.author,
+      PublicYear: book.public_year,
+      Publisher: book.publisher,
+      BookPictureUrl: book.book_picture_url,
+      Genre: book.genre_id,
+    }));
+  } catch (error) {
+    console.error("Error filtering books:", error);
+    alert("An error occurred while filtering books. Please try again.");
+  }
+},
+
 
   async searchBooks() {
     try {
@@ -225,9 +288,10 @@ export default {
           ISBN: book.ISBN,
           BookName: book.book_name,
           Author: book.author,
-          Version: book.version,
           PublicYear: book.public_year,
           Publisher: book.publisher,
+          BookPictureUrl: book.book_picture_url,
+          Genre: book.genre_id 
         }));
         alert('Books fetched successfully!');
       } else {
