@@ -54,4 +54,28 @@ class BookController:
         # TODO: 實現書籍搜尋邏輯
         return jsonify({"message": "Books searched successfully", "books": []})
     
+    def get_book_by_isbn():
+        isbn = request.args.get('isbn')  # 從查詢參數中獲取 ISBN
+        if not isbn:
+            return jsonify({"message": "ISBN is required"}), 400
+
+        # 查詢資料庫
+        book = db.session.execute(
+            "SELECT * FROM Books WHERE ISBN = :isbn",
+            {"isbn": isbn}
+        ).fetchone()
+
+        if not book:
+            return jsonify({"message": "Book not found"}), 404
+
+        # 返回書籍資料
+        return jsonify({
+            "isbn": book.ISBN,
+            "book_name": book.BookName,
+            "author": book.Author,
+            "public_year": book.PublicYear,
+            "publisher": book.Publisher,
+            "book_picture_url": book.BookPictureUrl
+        }), 200
+    
 book_controller = BookController()

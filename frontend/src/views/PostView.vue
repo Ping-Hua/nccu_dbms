@@ -107,7 +107,7 @@
   </div>
 </template>
 
-<script>
+<script> 
 export default {
 props: ['isbn'], // 接收書籍的 ISBN
 data() {
@@ -135,29 +135,45 @@ return {
 },
 
 created() {
-  this.fetchBookDetails();
-  this.fetchPosts();
   const isbn = this.$route.params.isbn;
   console.log('ISBN received:', isbn);
   if (!isbn) {
-  alert('No ISBN provided. Cannot display book details.');
-  return;
+    alert('No ISBN provided. Cannot display book details.');
+    return;
   }
   this.fetchBookDetails(isbn); // 傳入 ISBN 獲取書籍資訊
+  this.fetchPosts(); // 獲取該書的貼文
 },
 methods: {
   // 獲取書籍詳細資訊
-  fetchBookDetails() {
-    // 假資料，可以用 API 替換
-    this.book = {
-      CoverImage: 'http://books.google.com/books/content?id=gxLePQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api',
-      BookName: 'Example Book',
-      Author: 'John',
-      Version: '1st Edition',
-      PublicYear: 2021,
-      Publisher: 'Example Publisher',
-    };
-  },
+  fetchBookDetails(isbn) {
+  fetch(`/api/v1/book/details?isbn=${encodeURIComponent(isbn)}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch book details');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      this.book = {
+        CoverImage: data.book_picture_url,
+        BookName: data.book_name,
+        Author: data.author,
+        PublicYear: data.public_year,
+        Publisher: data.publisher,
+      };
+    })
+    .catch((error) => {
+      console.error('Error fetching book details:', error);
+      alert('An error occurred while fetching the book details.');
+    });
+},
+
 
   // 獲取貼文
   fetchPosts() {

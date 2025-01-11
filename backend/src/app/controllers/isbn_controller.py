@@ -26,3 +26,5 @@ class ISBNController:
         except Exception as e:
             logging.error(f"Error in ISBNController.get_book_by_isbn: {e}")
             return jsonify({"success": False, "error": str(e)}), 500
+        
+isbn_controller = ISBNController()
