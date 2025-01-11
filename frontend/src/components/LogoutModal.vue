@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '../api/api.js';
 import { useGlobalStore } from '../stores/global.js';
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
@@ -12,7 +12,7 @@ const emits = defineEmits(['close', 'logout-success']);
 const logout = async () => {
     console.log('Logging out...');
     try {
-        const { data } = await axios.post(`${apiUrl}/auth/logout`);
+        const { data } = await api.post(`${apiUrl}/auth/logout`);
         console.log(data.message);
 
         globalStore.clearUser();
