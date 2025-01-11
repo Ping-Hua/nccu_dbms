@@ -150,18 +150,23 @@ class PostService:
         return post_json
     @use_db
     def get_posts_by_user(cursor, user_id):
+        if user_id is None:
+            raise ValidationError("Missing required fields: user_id")
+        
         cursor.execute(
             """
             SELECT p.post_id, b.book_name, p.book_condition, p.price, p.create_time
             FROM post p
             JOIN book b ON p.book_id = b.book_id
-            JOIN user u ON p.seller_user_id = u.user_id
-            WHERE u.user_id = ?
+            WHERE p.seller_user_id = ?
             ORDER BY b.book_name, p.post_id, p.book_condition, p.price, p.create_time
             """,
             (user_id,)
         )
-        posts = cursor.fetchall()
+        posts = cursor.fetchall()      
+        if not posts:
+            raise ResourceNotFoundError(f"No post found for the userID: {user_id}")
+        
         post_list = []
         for post in posts:
             post_list.append({

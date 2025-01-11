@@ -47,21 +47,8 @@ class PostController:
     def user_post(self):
         logging.info("----PostController.user_post----")
         user_id = request.args.get('user_id')
-
-        if not user_id:
-            return jsonify({"message": "Missing required field: user_id"}), 400
-
-        try:
-            user_post = PostService.get_posts_by_user(user_id)
-            if not user_post:
-                return jsonify({"message": f"No post found for the userID: {user_id}.", "user_post": []}), 200
-
-            return jsonify({ "user_post" : user_post }), 200
-
-        except Exception as e:
-            logging.error(f"Error getting user's post: {str(e)}")
-            return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
-
+        user_post_list = PostService.get_posts_by_user(user_id)
+        return user_post_list, 200
 
     def get_post(self, post_id):
         logging.info("----Post_controller.get_post----")
