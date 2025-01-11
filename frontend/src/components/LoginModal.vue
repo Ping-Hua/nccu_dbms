@@ -6,7 +6,7 @@ import { useGlobalStore } from '../stores/global.js';
 
 const email = ref('');
 const password = ref('');
-const emits = defineEmits(['close']); 
+const emits = defineEmits(['close', 'open-register']); 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const globalStore = useGlobalStore();
