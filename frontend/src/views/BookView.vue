@@ -29,15 +29,10 @@
             v-for="genre in genres"
             v-if="genres.length > 0"
             :key="genre.genre_id"
-            v-if="genres.length > 0"
-            :key="genre.genre_id"
             class="category"
             :class="{ active: selectedGenre === genre.genre_id }"
             @click="filterBooks(genre.genre_id)"
-            :class="{ active: selectedGenre === genre.genre_id }"
-            @click="filterBooks(genre.genre_id)"
           >
-            {{ genre.genre_name }}
             {{ genre.genre_name }}
           </span>
         </div>
@@ -251,8 +246,7 @@ export default {
     alert('An error occurred while fetching the genres. Please try again.');
   }
 },
-    }
-  },
+    
 
   async fetchGenres() {
   try {
@@ -282,8 +276,6 @@ export default {
   async filterBooks(genreId) {
   this.selectedGenre = genreId; // 更新選中的類別
   try {
-    let url = '/api/v1/book/booklist';
-
     let url = '/api/v1/book/booklist';
 
     if (genreId !== null) {
