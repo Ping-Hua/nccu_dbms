@@ -14,10 +14,10 @@ def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     CORS(app)
-    # app.config.from_mapping(
-    #     SECRET_KEY='dev',
-    #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    # )
+    #app.config.from_mapping(
+    #    SECRET_KEY='dev',
+    #    DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+    #)
     app.config['DATABASE'] = 'database.db'
     database.init_app(app)
 
@@ -26,7 +26,7 @@ def create_app():
     @app.route('/hello')
     def hello():
         return 'Hello, World!'
-    
+
     app.register_blueprint(home_bp, url_prefix='/api/v1/')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(book_bp, url_prefix='/api/v1/book')

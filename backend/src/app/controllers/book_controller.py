@@ -11,19 +11,17 @@ class BookController:
         isbn = data.get('ISBN')
         book_name = data.get('book_name')
         author = data.get('author') 
-        version = data.get('version')
         public_year = data.get('public_year')
         publisher = data.get('publisher')
         book_picture_url = data.get('book_picture_url')
         genre_id = data.get('genre_id')
 
-        book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher, book_picture_url, genre_id)
+        book = BookService.adding_book(isbn, book_name, author, public_year, publisher, book_picture_url, genre_id)
         return jsonify({
             'book_id': book['book_id'],
             'ISBN': book['ISBN'],
             'book_name': book['book_name'],
             'author': book['author'],
-            'version': book['version'],
             'public_year': book['public_year'],
             'publisher': book['publisher'],
             'book_picture_url' : book['book_picture_url'],
