@@ -338,36 +338,38 @@ export default {
             return;
         }
 
-        const response = await fetch('/api/v1/book/add_book', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ISBN: isbn }), 
-        });
+        // 使用 Google Books API 查詢書籍
+        const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+        const response = await fetch(
+            `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}&key=${apiKey}`
+        );
 
         if (!response.ok) {
             console.error(`Error: ${response.status}, ${response.statusText}`);
-            if (response.status === 400) {
-                alert("Bad Request: Please check the request format.");
-            } else if (response.status === 404) {
-                alert("Book not found. Please enter details manually.");
-                this.showManualModal = true;
-            } else {
-                alert("Unexpected error occurred. Please try again.");
-            }
+            alert("Failed to fetch book details from Google API.");
             return;
         }
 
-        const addedBook = await response.json();
+        const data = await response.json();
+
+        // 檢查是否有書籍結果
+        if (!data.items || data.items.length === 0) {
+            alert("Book not found. Please enter details manually.");
+            this.showManualModal = true; // 顯示手動輸入模態框
+            return;
+        }
+
+        const bookInfo = data.items[0].volumeInfo;
+
+        // 將書籍資訊加入到 `books` 列表
         this.books.push({
-            ISBN: addedBook.ISBN,
-            BookName: addedBook.book_name,
-            Author: addedBook.author,
-            PublicYear: addedBook.public_year,
-            Publisher: addedBook.publisher,
-            BookPictureUrl: addedBook.book_picture_url,
-            Genre: addedBook.genre_id 
+            ISBN: isbn,
+            BookName: bookInfo.title,
+            Author: bookInfo.authors ? bookInfo.authors.join(", ") : "Unknown",
+            PublicYear: bookInfo.publishedDate || "Unknown",
+            Publisher: bookInfo.publisher || "Unknown",
+            BookPictureUrl: bookInfo.imageLinks?.thumbnail || "",
+            Genre: bookInfo.categories ? bookInfo.categories[0] : "General",
         });
 
         alert("Book added successfully!");
@@ -375,9 +377,11 @@ export default {
         console.error("Error searching book by ISBN:", error);
         alert("An error occurred while searching for the book. Please try again.");
     } finally {
-        this.showISBNModal = false;
+        this.showISBNModal = false; // 關閉模態框
     }
 },
+
+
 
 
   async addBookManually() {
