@@ -7,7 +7,7 @@ const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const posts = ref([]);
 const totalCount = ref(-1);
 
-const userID = 666;  // 測試用
+const userID = 555;  // 測試用
 
 const getPostList = async () => {
     console.log('Fetching post List for user:', userID);
@@ -102,7 +102,13 @@ onMounted(() => {
                 </div>
             </div>
             <!-- 無紀錄提示 -->
-            <div class="text-center" v-else-if="totalCount === 0">您沒有發過文！</div>
+            <div 
+                v-else 
+                class="d-flex justify-content-center align-items-center"
+                style="height: calc(100vh - 185px)"
+            >
+                <p class="text-muted text-center"> 您還沒發過文，歡迎使用 (⁎⁍̴̛ᴗ⁍̴̛⁎)</p>
+            </div>
         </div>
     </div>
 </template>
