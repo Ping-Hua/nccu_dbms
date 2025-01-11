@@ -52,7 +52,7 @@
     </nav>
 
     <!-- 主要內容區域 -->
-    <div class="container mt-4">
+    <div class="main-content">
       <router-view />
     </div>
   </div>
@@ -60,4 +60,17 @@
 
 
 <style>
+html, body, #app {
+  width: 100%; 
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.main-content{
+    margin-top: 56px;
+    height: calc(100% - 56px);
+    overflow-y: hidden;
+}
 </style>
