@@ -29,10 +29,15 @@
             v-for="genre in genres"
             v-if="genres.length > 0"
             :key="genre.genre_id"
+            v-if="genres.length > 0"
+            :key="genre.genre_id"
             class="category"
             :class="{ active: selectedGenre === genre.genre_id }"
             @click="filterBooks(genre.genre_id)"
+            :class="{ active: selectedGenre === genre.genre_id }"
+            @click="filterBooks(genre.genre_id)"
           >
+            {{ genre.genre_name }}
             {{ genre.genre_name }}
           </span>
         </div>
@@ -246,11 +251,39 @@ export default {
     alert('An error occurred while fetching the genres. Please try again.');
   }
 },
+    }
+  },
+
+  async fetchGenres() {
+  try {
+    const response = await fetch('/api/v1/genre/genres', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch genres from the server.');
+    }
+
+    const data = await response.json();
+    this.genres = data.map((genre) => ({
+      genre_id: genre.genre_id,
+      genre_name: genre.genre_name,
+    }));
+  } catch (error) {
+    console.error('Error fetching genres:', error);
+    alert('An error occurred while fetching the genres. Please try again.');
+  }
+},
 
   // 按類別篩選書籍
   async filterBooks(genreId) {
   this.selectedGenre = genreId; // 更新選中的類別
   try {
+    let url = '/api/v1/book/booklist';
+
     let url = '/api/v1/book/booklist';
 
     if (genreId !== null) {
@@ -259,12 +292,15 @@ export default {
 
     const response = await fetch(url, {
       method: 'GET',
+      method: 'GET',
       headers: {
+        'Content-Type': 'application/json',
         'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
+      throw new Error('Failed to fetch books.');
       throw new Error('Failed to fetch books.');
     }
 
@@ -283,8 +319,11 @@ export default {
   } catch (error) {
     console.error('Error filtering books:', error);
     alert('An error occurred while filtering books. Please try again.');
+    console.error('Error filtering books:', error);
+    alert('An error occurred while filtering books. Please try again.');
   }
 },
+
 
 
 
@@ -338,46 +377,46 @@ export default {
             return;
         }
 
-        // 使用 Google Books API 查詢書籍
-        const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-        const response = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}&key=${apiKey}`
-        );
+        const response = await fetch('/api/v1/book/add_book', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ISBN: isbn }), 
+        });
 
         if (!response.ok) {
             console.error(`Error: ${response.status}, ${response.statusText}`);
-            alert("Failed to fetch book details from Google API.");
+            if (response.status === 400) {
+                alert("Bad Request: Please check the request format.");
+            } else if (response.status === 404) {
+                alert("Book not found. Please enter details manually.");
+                this.showManualModal = true;
+            } else {
+                alert("Unexpected error occurred. Please try again.");
+            }
             return;
         }
 
-        const data = await response.json();
-
-        // 檢查是否有書籍結果
-        if (!data.items || data.items.length === 0) {
-            alert("Book not found. Please enter details manually.");
-            this.showManualModal = true; // 顯示手動輸入模態框
-            return;
-        }
-
-        const bookInfo = data.items[0].volumeInfo;
-
-        // 將書籍資訊加入到 `books` 列表
+        const addedBook = await response.json();
         this.books.push({
-            ISBN: isbn,
-            BookName: bookInfo.title,
-            Author: bookInfo.authors ? bookInfo.authors.join(", ") : "Unknown",
-            PublicYear: bookInfo.publishedDate || "Unknown",
-            Publisher: bookInfo.publisher || "Unknown",
-            BookPictureUrl: bookInfo.imageLinks?.thumbnail || "",
-            Genre: bookInfo.categories ? bookInfo.categories[0] : "General",
+            ISBN: addedBook.ISBN,
+            BookName: addedBook.book_name,
+            Author: addedBook.author,
+            PublicYear: addedBook.public_year,
+            Publisher: addedBook.publisher,
+            BookPictureUrl: addedBook.book_picture_url,
+            Genre: addedBook.genre_id 
         });
 
         alert("Book added successfully!");
     } catch (error) {
         console.error("Error searching book by ISBN:", error);
         alert("An error occurred while searching for the book. Please try again.");
+        console.error("Error searching book by ISBN:", error);
+        alert("An error occurred while searching for the book. Please try again.");
     } finally {
-        this.showISBNModal = false; // 關閉模態框
+        this.showISBNModal = false;
     }
 },
 
