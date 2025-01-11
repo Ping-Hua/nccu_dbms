@@ -16,15 +16,14 @@ const logout = async () => {
         console.log(data.message);
 
         globalStore.clearUser();
-        alert("You have been logged out successfully.");
+        alert("您已成功登出！");
 
         emits('logout-success');
+        closeModal();
     } catch (error) {
         console.error('logout failed:', error.response?.data?.message);
         alert(error.response?.data?.message);
-    } finally {
-        closeModal();
-    }
+    } 
 };
 
 const closeModal = () => {

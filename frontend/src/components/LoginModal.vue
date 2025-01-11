@@ -28,8 +28,7 @@ const login = async () => {
 
         const { data } = await api.post(`${apiUrl}/auth/login` , payload);
         console.log("Login successfully");
-
-        globalStore.setUser(data.id, data.name);
+        globalStore.setUser(data.user.user_id, data.user.email);
         return true;        
     } catch (error) {
         const errorMessage = error.response?.data?.messages || "An error occurred. Please try again.";

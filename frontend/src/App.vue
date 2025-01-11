@@ -99,8 +99,8 @@ const openLogoutModal = () => {
 
         <!-- 登入/註冊 Modal -->
         <LoginModal
-            v-if="showModal && modalType === 'login'"
-            @close="showModal = false"
+            v-if="showModal && modalType === 'login' || globalStore.showLoginModal"
+            @close="showModal = false || globalStore.toggleLoginModal(false)"
             @open-register="openRegisterModal"
         />
         <RegisterModal

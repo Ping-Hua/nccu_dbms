@@ -4,22 +4,28 @@ import { ref } from 'vue';
 export const useGlobalStore = defineStore('global', () => {
     const user = ref({
         id: '',
-        name: '',
+        email: '',
     });
 
     const loginStatus = ref('default'); // 'default', 'logged_in', 'logged_out'
+    
+    const showLoginModal = ref(false);
 
-    const setUser = (id, name) => {
-        user.value = { id, name };
+    const setUser = (id, email) => {
+        user.value = { id, email };
         loginStatus.value = 'logged_in';
     };
 
     const clearUser = () => {
-        user.value = { id: '', name: '' };
+        user.value = { id: '', email: '' };
         loginStatus.value = 'logged_out';
     };
 
-    return { user, loginStatus, setUser, clearUser };
+    const toggleLoginModal = (status) => {
+        showLoginModal.value = status;
+    };
+
+    return { user, loginStatus, showLoginModal, setUser, clearUser, toggleLoginModal };
 }, {
     persist: {
         enabled: true,
