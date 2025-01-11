@@ -58,10 +58,11 @@ class BookService:
                 "book_name": book[1],
                 "ISBN": book[2],
                 "author": book[3],
-                "version": book[4],
-                "public_year": book[5],
-                "publisher": book[6],
-                "create_time": book[7]})
+                "public_year": book[4],
+                "publisher": book[5],
+                "book_picture_url": book[6],
+                "genre_id": book[7],
+                "create_time": book[8]})
             
         logging.info(f"Books with query '{query}' retrieved successfully.")
         
