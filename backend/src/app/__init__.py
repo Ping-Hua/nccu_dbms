@@ -8,7 +8,6 @@ from app.routes.home_routes import home_bp
 from app.errors import error_handler
 from app import database
 from flask_cors import CORS
-from app.middlewares.cors import cors_middleware
 
 def create_app():
     # create and configure the app
