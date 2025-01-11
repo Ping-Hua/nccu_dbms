@@ -55,7 +55,7 @@ class BookController:
         return jsonify({"message": "Books searched successfully", "books": []})
     
     def get_book_by_isbn():
-        isbn = request.args.get('isbn')  # 從查詢參數中獲取 ISBN
+        isbn = request.args.get('isbn') 
         if not isbn:
             return jsonify({"message": "ISBN is required"}), 400
 
