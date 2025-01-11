@@ -23,6 +23,7 @@ class AuthController:
         }), 201
     
     def login(self):
+        session.clear()
         logging.info("----Auth_controller.login----")
         
         data = request.get_json()
@@ -34,6 +35,9 @@ class AuthController:
         session['user_id'] = login['user_id']
         session['email'] = login['email']
         session.permanent = True
+        # print("------------")
+        # print(session)
+        # print("------------")
 
         return jsonify({
             'message': 'Login successful' ,
@@ -45,6 +49,8 @@ class AuthController:
     
     def logout(self):
         logging.info("----Auth_controller.logout----")
+        # print("Request Cookies:", request.cookies)
+        # print("Session content:", session)
         
         if 'user_id' in session:
             user_id = session.get('user_id')
@@ -64,7 +70,8 @@ class AuthController:
     
     def check_status(self):
         logging.info("----Auth_controller.check_status----")
-        
+        # print("Request Cookies:", request.cookies)
+        # print("Session content:", session)
         if 'user_id' in session:
             user_id = session.get('user_id')
             email = session.get('email')
