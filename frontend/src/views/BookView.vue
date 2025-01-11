@@ -206,7 +206,6 @@ export default {
 
       const data = await response.json();
 
-      // 格式化並更新書籍數據
       this.books = data.map((book) => ({
         ISBN: book.ISBN,
         BookName: book.book_name,
