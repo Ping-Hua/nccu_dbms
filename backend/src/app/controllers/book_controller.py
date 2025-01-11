@@ -11,19 +11,17 @@ class BookController:
         isbn = data.get('ISBN')
         book_name = data.get('book_name')
         author = data.get('author') 
-        version = data.get('version')
         public_year = data.get('public_year')
         publisher = data.get('publisher')
         book_picture_url = data.get('book_picture_url')
         genre_id = data.get('genre_id')
 
-        book = BookService.adding_book(isbn, book_name, author, version, public_year, publisher, book_picture_url, genre_id)
+        book = BookService.adding_book(isbn, book_name, author, public_year, publisher, book_picture_url, genre_id)
         return jsonify({
             'book_id': book['book_id'],
             'ISBN': book['ISBN'],
             'book_name': book['book_name'],
             'author': book['author'],
-            'version': book['version'],
             'public_year': book['public_year'],
             'publisher': book['publisher'],
             'book_picture_url' : book['book_picture_url'],
@@ -52,8 +50,47 @@ class BookController:
 
     def search_books(self):
         logging.info("----Book_controller.search_books----")
+        user_query = request.args.get("query")  # 假設從查詢參數中獲取查詢query
+        if  user_query is None or len(user_query) == 0:
+            logging.warning("Book name is missing in the request.")
+            return jsonify({"success": False, "error": "Book name is required"}), 400
 
-        # TODO: 實現書籍搜尋邏輯
-        return jsonify({"message": "Books searched successfully", "books": []})
+        try:
+            book_service = BookService()
+            searching = book_service.search(user_query)
+            if searching is not None and len(searching) > 0:
+                logging.info(f"Books with query '{user_query}' retrieved successfully.")
+                return jsonify({"success": True, "message": "Books searched successfully", "book": searching}), 200
+                 
+            else:
+                logging.warning(f"Attempted to search non-existent book with  {user_query}")
+                return jsonify({"success": False, "error": "Books not found"}),404
+        except Exception as e:
+            logging.error(f"Error occurred while searching book with {user_query}: {str(e)}")
+            return jsonify({"success": False, "error": str(e)}),500
+    
+    def get_book_by_isbn():
+        isbn = request.args.get('isbn') 
+        if not isbn:
+            return jsonify({"message": "ISBN is required"}), 400
+
+        # 查詢資料庫
+        book = db.session.execute(
+            "SELECT * FROM Books WHERE ISBN = :isbn",
+            {"isbn": isbn}
+        ).fetchone()
+
+        if not book:
+            return jsonify({"message": "Book not found"}), 404
+
+        # 返回書籍資料
+        return jsonify({
+            "isbn": book.ISBN,
+            "book_name": book.BookName,
+            "author": book.Author,
+            "public_year": book.PublicYear,
+            "publisher": book.Publisher,
+            "book_picture_url": book.BookPictureUrl
+        }), 200
     
 book_controller = BookController()
