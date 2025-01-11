@@ -13,8 +13,9 @@ from app.middlewares.cors import cors_middleware
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    cors_middleware(app)
-    #CORS(app , supports_credentials=True, origins=["http://localho.st:5173"])       
+    # cors_middleware(app)
+    # CORS(app , supports_credentials=True, origins=["http://localho.st:5173"])   
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://127.0.0.1:5173"}})
 
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
@@ -24,7 +25,8 @@ def create_app():
     # Session
     app.config['SECRET_KEY'] = os.urandom(24)
 
-    app.config['SESSION_COOKIE_NAME'] = 'Cookie-based_session'
+    # app.config['SESSION_COOKIE_NAME'] = 'Cookie-based_session'
+    app.config['SESSION_COOKIE_NAME'] = 'session'
     app.config['SESSION_COOKIE_HTTPONLY'] = True 
     app.config['SESSION_COOKIE_SECURE'] = False 
     app.config['PERMANENT_SESSION_LIFETIME'] = 1800 # 1800 秒有效期

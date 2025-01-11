@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import axios from 'axios';
+import api from '../api/api.js';
 import { useRouter } from 'vue-router';
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
@@ -38,7 +38,7 @@ const register = async () => {
             phone: phone.value
         };
 
-        const { data } = await axios.post(`${apiUrl}/auth/register` , payload);
+        const { data } = await api.post(`${apiUrl}/auth/register` , payload);
         console.log("Register successfully");
         return true;
     } catch (error) {

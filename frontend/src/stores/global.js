@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 
 export const useGlobalStore = defineStore('global', () => {
     const user = ref({
@@ -20,4 +20,15 @@ export const useGlobalStore = defineStore('global', () => {
     };
 
     return { user, loginStatus, setUser, clearUser };
+}, {
+    persist: {
+        enabled: true,
+        strategies: [
+            {
+                key: 'global_store',
+                storage: localStorage,
+                paths: ['user', 'loginStatus'],
+            },
+        ],
+    },
 });
