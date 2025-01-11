@@ -20,7 +20,7 @@ class BookService:
             raise ValidationError(f"ISBN: {ISBN} already exists in the database.")
 
         cursor.execute(
-            "INSERT INTO book (ISBN, book_name, author, public_year, publisher, book_picture_url, genre_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+            "INSERT INTO book (ISBN, book_name, author, public_year, publisher, book_picture_url, genre_id) VALUES (?, ?, ?, ?, ?, ?, ?)", 
             (ISBN, book_name, author, public_year, publisher, book_picture_url, genre_id)
         )
 
