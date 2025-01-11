@@ -159,7 +159,7 @@ class PostService:
             FROM post p
             JOIN book b ON p.book_id = b.book_id
             WHERE p.seller_user_id = ?
-            ORDER BY b.book_name, p.post_id, p.book_condition, p.price, p.create_time
+            ORDER BY p.create_time DESC
             """,
             (user_id,)
         )

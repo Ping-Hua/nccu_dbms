@@ -7,7 +7,7 @@ const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const posts = ref([]);
 const totalCount = ref(-1);
 
-const userID = 555;  // 測試用
+const userID = 666;  // 測試用
 
 const getPostList = async () => {
     console.log('Fetching post List for user:', userID);
@@ -57,7 +57,17 @@ onMounted(() => {
                 :key="`post-${post.index}`"
                 class="post-card w-100 my-2 d-flex align-items-center py-1 rounded"
             >   
-                <div class="mx-3" style="width: 30px;">{{ post.index }}</div>
+                <div class="mx-3" style="width: 60px;">
+                    <button 
+                        class="btn btn-secondary btn-sm">修改
+                    </button>
+                </div>
+                <div class="vr my-2"></div>
+                <div class="mx-3" style="width: 60px;">
+                    <button 
+                        class="btn btn-secondary btn-sm">刪除
+                    </button>
+                </div>
                 <div class="vr my-2"></div>
                 <div class="w-100 mx-3" style="overflow: hidden">
                     <!-- post id -->
@@ -67,7 +77,7 @@ onMounted(() => {
                         </div>
 
                         <div class="d-flex align-items-center justify-content-end gap-2 ms-auto">
-                            {{ post.book_condition }}
+                            書籍狀態：{{ post.book_condition }}
                         </div>
                     </div>
                     <!-- 價錢 -->
