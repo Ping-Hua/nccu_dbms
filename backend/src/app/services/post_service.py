@@ -176,7 +176,12 @@ class PostService:
                 "price": post[3],
                 "create_time": post[4]
             })
-        return post_list
+
+        total_count = len(post_list)
+        return {
+            "total_count": total_count,
+            "post_list": post_list
+        }
 
     @use_db
     def service_delete_post(cursor, post_id):
