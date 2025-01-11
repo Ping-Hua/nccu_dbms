@@ -13,7 +13,6 @@ from app.middlewares.cors import cors_middleware
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    # cors_middleware(app)
     # CORS(app , supports_credentials=True, origins=["http://localho.st:5173"])   
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://127.0.0.1:5173"}})
 
