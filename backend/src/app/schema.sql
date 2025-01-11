@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS review;
 
 CREATE TABLE user (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT, -- not null
     email TEXT NOT NULL,
     password TEXT NOT NULL,
     student_number INTEGER, -- not null
@@ -30,7 +31,6 @@ CREATE TABLE book (
     book_name  TEXT NOT NULL,
     ISBN TEXT UNIQUE NOT NULL, -- ISBN 不可重複且必填
     author TEXT NOT NULL, -- 作者必填
-    version TEXT, -- not null
     public_year INTEGER ,-- not null
     publisher TEXT, --not null
     book_picture_url TEXT,
