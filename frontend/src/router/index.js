@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
 import { useGlobalStore } from '../stores/global.js';
 
 const router = createRouter({
