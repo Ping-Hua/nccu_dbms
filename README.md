@@ -92,8 +92,12 @@ DBMS與工具：Flask 3.0.3 + SQLite\
     2. 買家：上傳書籍、留言
 
     3. 賣家：發貼文、管理已上傳貼文（修改價格及書況）、留言、下架書籍
+## ER Model
 
 ![ER-model](https://github.com/user-attachments/assets/31bfab71-021e-4cf5-89df-1a4e5bb0be2d)
+
+## Relational Schema 
+
 
 
 ## Entity Types
