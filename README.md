@@ -11,9 +11,9 @@
 **組員｜**110301026 國貿四 何姿儀 112354002 統碩二 張倢琳 112354003 統碩二 樂沂晨 112354010 統碩二 陳品華 112354021 統碩二 張祐瑜
 
 ## 系統架構
-- 系統開發程式語言：Python 3.12   \
-- DBMS與工具：Flask 3.0.3 + SQLite\
-- 前端： Vue + Vite \
+- 系統開發程式語言：Python 3.12   
+- DBMS與工具：Flask 3.0.3 + SQLite
+- 前端： Vue + Vite 
 - 系統模組：用戶模組、書籍模組、貼文模組、回應模組
 
 
@@ -92,10 +92,10 @@
 
     3. 賣家：發貼文、管理已上傳貼文（修改價格及書況）、留言、下架書籍
 
-    
+
 ## ER Model
 
-![ER-model](https://github.com/user-attachments/assets/31bfab71-021e-4cf5-89df-1a4e5bb0be2d)
+![ER-model](docs/ER-model.pdf)
 
 ## Relational Schema 
 
