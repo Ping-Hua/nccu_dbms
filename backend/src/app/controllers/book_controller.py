@@ -72,8 +72,8 @@ class BookController:
     def book_details(self):
         logging.info("----Book_controller.book_details----")
         
-        isbn = request.args.get('isbn')
-        book = BookService.get_book_isbn_details(isbn)
+        book_id = request.args.get('book_id')
+        book = BookService.get_book_isbn_details(book_id)
         return book, 200
     
 book_controller = BookController()

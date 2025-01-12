@@ -45,13 +45,13 @@
       <div
         class="book-card"
         v-for="book in books"
-        :key="book.ISBN"
-        @click="viewBookDetails(book.ISBN)"
+        :key="book.bookId"
+        @click="viewBookDetails(book.bookId)"
       >
         <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
         <p><b>{{ book.BookName }}</b></p>
-        <p>Author: {{ book.Author }}</p>
-        <p>Public Year: {{ book.PublicYear }}</p>
+        <p><b>Author: </b>{{ book.Author }}</p>
+        <p><b>Public Year: </b>{{ book.PublicYear }}</p>
       </div>
     </div>
 
@@ -80,7 +80,7 @@
         </div>
         <div class="form-group">
           <label for="genre">Select Genre:</label>
-          <select id="genre" v-model="manualBookDetails.genre" required>
+          <select id="genre" v-model="selectedGenre" required>
             <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
               {{ genre.genre_name }}
             </option>
@@ -167,8 +167,8 @@
         </form>
       </div>
 </div>
+</div>
 
-  </div>
 </template>
 
 
@@ -201,8 +201,8 @@ export default {
     };
   },
   created() {
-    this.fetchAllBooks(); // 初始化時獲取所有書籍
-    this.fetchGenres(); // 初始化時獲取所有書籍
+    this.fetchAllBooks();
+    this.fetchGenres(); 
   },
   
   methods: {
@@ -215,17 +215,15 @@ export default {
     this.showISBNModal = false; 
   },
 
-  // 跳轉到詳細頁面
-  viewBookDetails(isbn) {
-    console.log("Navigating to post page with ISBN:", isbn); // Debug 輸出
+  openModal() {
+  document.body.classList.add('modal-open');
+  this.showISBNModal = true;
+},
+closeModal() {
+  document.body.classList.remove('modal-open');
+  this.showISBNModal = false;
+},
 
-    if (!isbn) {
-      alert("ISBN is missing!");
-      return;
-    }
-
-    this.$router.push({ name: "post", params: { isbn } });
-  },
 
 async fetchAllBooks() {
     try {
@@ -250,12 +248,22 @@ async fetchAllBooks() {
         Publisher: book.publisher,
         BookPictureUrl: book.book_picture_url,
         Genre: book.genre_id,
+        bookId: book.book_id,
       }));
     } catch (error) {
       console.error("Error fetching books:", error);
       alert("An error occurred while fetching the book list. Please try again.");
     }
   },
+
+  viewBookDetails(bookId) {
+  if (!bookId) {
+    alert("Book ID is missing!");
+    return;
+  }
+
+  this.$router.push({ name: "post", params: { bookId } });
+},
 
 async fetchGenres() {
   try {
@@ -386,7 +394,7 @@ async searchBookByISBN() {
     if (!response.ok) {
       if (response.status === 404) {
         alert("Book not found. Please enter details manually.");
-        this.showManualModal = true; // 顯示手動輸入模態框
+        this.showManualModal = true; 
       } else {
         throw new Error("Failed to fetch book details.");
       }
@@ -395,19 +403,19 @@ async searchBookByISBN() {
 
     const book = await response.json();
     this.bookToConfirm = {
-      ISBN: book.ISBN,
-      BookName: book.book_name,
-      Author: book.author,
-      PublicYear: book.public_year,
-      Publisher: book.publisher,
-      BookPictureUrl: book.book_picture_url,
+      ISBN: book.book_data.ISBN,
+      BookName: book.book_data.book_name,
+      Author: book.book_data.author,
+      PublicYear: book.book_data.public_year,
+      Publisher: book.book_data.publisher,
+      BookPictureUrl: book.book_data.book_picture_url,
     };
-    this.showConfirmModal = true; // 顯示確認模態框
+    this.showConfirmModal = true; 
   } catch (error) {
     console.error("Error searching book by ISBN:", error);
     alert("An error occurred while searching for the book. Please try again.");
   } finally {
-    this.showISBNModal = false; // 關閉 ISBN 搜尋模態框
+    this.showISBNModal = false; 
   }
 },
 
@@ -419,8 +427,13 @@ async confirmBook() {
 
   try {
     const newBook = {
-      ...this.bookToConfirm,
-      genre_id: this.selectedGenre, // 添加分類 ID
+      ISBN: this.bookToConfirm.ISBN,
+      book_name: this.bookToConfirm.BookName,
+      author: this.bookToConfirm.Author,
+      public_year: this.bookToConfirm.PublicYear,
+      publisher: this.bookToConfirm.Publisher,
+      book_picture_url: this.bookToConfirm.BookPictureUrl, // 確保名稱正確
+      genre_id: parseInt(this.selectedGenre, 10), // 確保 genre_id 是數字型別
     };
 
     const response = await fetch("/api/v1/book/add_book", {
@@ -444,10 +457,9 @@ async confirmBook() {
       PublicYear: addedBook.public_year,
       Publisher: addedBook.publisher,
       BookPictureUrl: addedBook.book_picture_url,
-      Genre: addedBook.genre_id, // 確保分類被正確設定
+      Genre: addedBook.genre_id, 
     });
 
-    // 重新套用過濾邏輯
     this.filterBooks(this.selectedGenre);
 
     alert("Book added successfully!");
@@ -541,7 +553,11 @@ async addBookManually() {
 
 <style scoped>
 .home {
-  padding-top: 20px; 
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平置中 */
+  height: 100vh; /* 讓內容佔滿頁面高度 */
 }
 
 body {
@@ -549,17 +565,23 @@ body {
   padding: 20px;
 }
 
+body.modal-open {
+  overflow: hidden; /* 禁止滾動 */
+}
+
 .main-content {
   display: flex;
-  justify-content: space-between; 
+  justify-content: center; /* 水平置中 */
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px; 
+  margin-top: 5px; /* 視需要增加上方的緊湊感 */
+  width: 100%; /* 確保內容寬度一致 */
 }
 
 .header {
   text-align: center;
   margin-bottom: 10px;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .title {
@@ -586,7 +608,8 @@ object-fit: cover; /* 確保圖片不會變形 */
 .categories {
   display: flex;
   gap: 20px; 
-  margin-bottom: 20px;
+  margin-bottom: 20px; 
+  margin-top: 20px; 
 }
 
 .category {
@@ -699,11 +722,15 @@ object-fit: cover; /* 確保圖片不會變形 */
 
 .btn-add-book {
   margin-left: 30px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #000;
 }
 
 .btn-add-book:hover {
-  border-color: #555555cf; 
-  background-color: #f0f0f0; 
+  background-color: #e2e1e1; 
 }
 
 .btn-submit:hover {
@@ -757,19 +784,24 @@ object-fit: cover; /* 確保圖片不會變形 */
 .books-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; 
-  justify-content: flex-start; 
-  margin-bottom: 200px;
+  gap: 20px;
+  justify-content: center; /* 水平置中 */
+  align-items: center; /* 垂直置中 */
 }
 
 
 .book-card {
-  width: 200px;
-  text-align: center; 
-  padding: 10px; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  width: 220px; /* 固定寬度 */
+  height: 300px; /* 固定高度 */
+  display: flex;
+  flex-direction: column; /* 垂直排列內容 */
+  justify-content: space-between; /* 在卡片內均分空間 */
+  align-items: center; /* 水平置中 */
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px; /* 圓角 */
   background-color: #fff;
+  overflow: hidden; /* 隱藏超出範圍的內容 */
 }
 
 

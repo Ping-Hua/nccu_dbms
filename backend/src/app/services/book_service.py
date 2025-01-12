@@ -117,19 +117,19 @@ class BookService:
     
     @staticmethod
     @use_db   
-    def get_book_isbn_details(cursor, isbn):
+    def get_book_isbn_details(cursor, book_id):
 
-        if isbn is None:
-            raise ValidationError("Missing required fields: ISBN")
+        if book_id is None:
+            raise ValidationError("Missing required fields: book_id")
         cursor.execute(
             "SELECT book_id, book_name, ISBN, author, public_year, book_picture_url, genre_id FROM book "
-            "WHERE ISBN = ?",
-            (isbn,)
+            "WHERE book_id = ?",
+            (book_id,)
         )
 
         book = cursor.fetchone()
         if book is None:
-            raise ResourceNotFoundError("Unable to find book by ISBN")
+            raise ResourceNotFoundError("Unable to find book by book_id")
         
         book_data = {
             "book_id": book[0],

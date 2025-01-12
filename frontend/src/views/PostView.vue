@@ -1,18 +1,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import { useGlobalStore } from '../stores/global.js';
+
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const globalStore = useGlobalStore();
 
+const route = useRoute();
 const userID = globalStore.user.id;
 
 const book = ref({});
-const bookId = ref(1); // 測試用
+const bookId = ref(route.params.bookId); 
+
 const posts = ref([]);
 
-// ---- 取得書籍資訊 ----
 const fetchBookDetails = async () => {
     try {
         console.log("Fetching book details for book_id:", bookId.value);
@@ -167,7 +170,7 @@ onMounted(() => {
       <div class="post-section">
         <div class="post-header">
           <h4><b>Seller Posts</b></h4>
-          <button @click="showAddPostModal = true" class="btn btn-secondary">+ Add Post</button>
+          <button @click="showAddPostModal = true" class="btn-secondary">+ Add Post</button>
         </div>
 
         <table class="posts-table">
@@ -187,7 +190,7 @@ onMounted(() => {
               <td>{{ post.condition }}</td>
               <td>${{ post.price }}</td>
               <td>
-                <button @click="openReplyModal(post)" class="btn btn-secondary">Reply</button>
+                <button @click="openReplyModal(post)" class="reply-button">Reply</button>
               </td>
             </tr>
           </tbody>
@@ -226,8 +229,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Reply Modal -->
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="closeReplyModal">
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModal = false">
     <div class="modal-content">
         <!-- 上半部分：Post 資訊 -->
         <div class="post-details">
@@ -264,6 +266,20 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary{
+  margin-left: 30px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e1e1; 
 }
 
 .post-page {
@@ -463,5 +479,16 @@ margin: 10px 0;
 font-style: italic;
 }
 
+.reply-button {
+padding: 5px 10px;
+background-color: #28a745;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
 
+.reply-button:hover {
+background-color: #0c5108;
+}
 </style>

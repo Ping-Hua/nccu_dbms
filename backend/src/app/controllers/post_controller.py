@@ -61,11 +61,19 @@ class PostController:
         post_list = PostService.get_all_post() if book_id is None else PostService.get_all_post_by_book(book_id)
         return post_list, 200
 
-
-    def get_post_by_isbn(self):
-        logging.info("----Post_controller.get_post_by_isbn----")
-        isbn = request.args.get('isbn')
-        post_list = PostService.get_post_by_isbn(isbn)
-        return post_list, 200
+    def delete_post(self,post_id):
+        logging.info("----Post_controller.delete_post----")
+        try:
+            # 呼叫 service 層進行刪除，並獲取被刪除的貼文資料
+            deleted_post = PostService.service_delete_post(post_id)
+            if deleted_post:
+                logging.info(f"Post with ID {post_id} deleted successfully: {deleted_post}")
+                return {"success": True, "message": "Post deleted successfully", "post": deleted_post}, 200
+            else:
+                logging.warning(f"Attempted to delete non-existent post with ID {post_id}")
+                return {"success": False, "error": "Post not found"},404
+        except Exception as e:
+            logging.error(f"Error occurred while deleting post with ID {post_id}: {str(e)}")
+            return {"success": False, "error": str(e)},500
 
 post_controller = PostController()

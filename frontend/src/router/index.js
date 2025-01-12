@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
+import { useGlobalStore } from '../stores/global.js';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -12,7 +13,8 @@ const router = createRouter({
         {
             path: '/user',
             name: 'user',
-            component: () => import('../views/UserView.vue')
+            component: () => import('../views/UserView.vue'),
+            meta: { requireAuth: 'true' },
         },
         {
             path: '/book',
@@ -20,16 +22,35 @@ const router = createRouter({
             component: () => import('../views/BookView.vue')
         },
         {
-            path: "/post/:isbn",
-            name: "post",
+            path: '/post/:bookId',
+            name: 'post',
             component: () => import('../views/PostView.vue'),
+            meta: { requireAuth: 'true' },
         },
         {
             path: '/comments',
             name: 'comments',
-            component: () => import('../views/CommentView.vue')
+            component: () => import('../views/CommentView.vue'),
+            meta: { requireAuth: 'true' },
         }
     ],
 });
+
+router.beforeEach((to, from, next) => {
+    const globalStore = useGlobalStore();
+
+    if (to.meta.requireAuth) {
+        if (globalStore.loginStatus === 'logged_in') {
+            next();
+        } else {
+            globalStore.toggleLoginModal(true);
+            next(false);
+        }
+    } else {
+        next();
+    }
+});
+
+
 
 export default router;
