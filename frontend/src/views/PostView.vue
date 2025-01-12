@@ -1,193 +1,149 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import { useGlobalStore } from '../stores/global.js';
 
-const route = useRoute();
-const isbn = ref(route.params.isbn);
+const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
+const globalStore = useGlobalStore();
+
+const userID = globalStore.user.id;
+
 const book = ref({});
+const bookId = ref(1); // 測試用
 const posts = ref([]);
+
+// ---- 取得書籍資訊 ----
+const fetchBookDetails = async () => {
+    try {
+        console.log("Fetching book details for book_id:", bookId.value);
+        const { data } = await axios.get(`${apiUrl}/book/details`, {
+        params: { book_id: bookId.value },
+        });
+
+        
+        book.value = {
+            BookPictureUrl: data.book_picture_url,
+            BookName: data.book_name,
+            Author: data.author,
+            PublicYear: data.public_year,
+            Publisher: data.publisher,
+        };
+
+        console.log("Book details fetched successfully:", book.value);
+    } catch (error) {
+        console.error("Error fetching book details:", error);
+        alert("Failed to fetch book details. Please try again.");
+    }
+};
+
+// ---- 取得該書籍的 Post ----
+const fetchPosts = async () => {
+    try {
+        console.log("Fetching posts for book_id:", bookId.value);
+        const { data } = await axios.get(`${apiUrl}/post/get_post`, {
+            params: { book_id: bookId.value },
+        });
+
+        // 整理 Post 資料
+        posts.value = Array.isArray(data)
+            ? data.map((post) => ({
+                  post_id: post.post_id,
+                  seller: `${post.seller_user_id}`,
+                  postDate: new Date(post.create_time).toLocaleDateString(),
+                  condition: post.book_condition,
+                  price: post.price,
+              }))
+            : [];
+
+        console.log("Posts fetched successfully:", posts.value);
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        alert("Failed to fetch posts. Please try again.");
+    }
+};
+
+// ---- add post 變數 ----
 const showAddPostModal = ref(false);
 const newPost = ref({
-    condition: '',
-    price: '',
+    seller_user_id: userID,
+    book_id: bookId.value,
+    condition: "",
+    price: null,
 });
-const currentUser = ref({
-    id: '12345',
-    name: 'Alice',
-});
-const showReplyModal = ref(false);
-const currentReplySellerId = ref(null);
-const currentReplySellerName = ref('');
-const currentConversation = ref([]);
-const newMessageContent = ref('');
 
-const fetchBookDetails = async (isbn) => {
-    try {
-        const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
-        if (!response.ok) {
-        throw new Error('Failed to fetch book details');
-        }
-
-        const data = await response.json();
-        console.log('Fetched book details:', data);
-
-        if (!data.ISBN) {
-        throw new Error('No book data found');
-        }
-
-        book.value = {
-        BookPictureUrl: data.book_picture_url,
-        BookName: data.book_name,
-        Author: data.author,
-        PublicYear: data.public_year,
-        Publisher: data.publisher || 'Unknown',
-        };
-    } catch (error) {
-        console.error('Error fetching book details:', error);
-        alert('Failed to fetch book details. Please try again.');
-    }
-};
-
-const fetchPosts = async (isbn) => {
-    try {
-        console.log('Fetching posts for ISBN:', isbn);
-        const response = await fetch(`/api/v1/post/get_isbn_post?isbn=${isbn}`);
-        if (!response.ok) {
-        throw new Error('Failed to fetch posts');
-        }
-
-        const data = await response.json();
-        console.log('Fetched posts:', data);
-
-        posts.value = data.map((post) => ({
-        id: post.post_id,
-        seller: `User ${post.seller_user_id}`,
-        date: new Date(post.create_time.replace(' ', 'T')).toLocaleDateString(),
-        condition: post.book_condition,
-        price: post.price,
-        }));
-    } catch (error) {
-        console.error('Error fetching posts:', error);
-        alert('Failed to fetch posts. Please try again.');
-    }
-};
-
+// ---- 新增 Post ----
 const addPost = async () => {
     try {
-        const bookListResponse = await fetch('/api/v1/book/booklist');
-        if (!bookListResponse.ok) {
-        throw new Error('Failed to fetch book list');
-        }
-
-        const bookList = await bookListResponse.json();
-
-        const selectedBook = bookList.find((book) => book.isbn === isbn.value);
-        if (!selectedBook) {
-        throw new Error('Book not found in the book list');
-        }
-
-        const book_id = selectedBook.book_id;
-
-        const newPostData = {
-        seller_user_id: currentUser.value.id,
-        book_id: book_id,
-        book_condition: newPost.value.condition,
-        price: newPost.value.price,
-        };
-
-        console.log('Sending New Post Data:', newPostData);
-
-        const postResponse = await fetch('/api/v1/post/add_post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPostData),
+        const { data } = await axios.post(`${apiUrl}/post/add_post`, {
+            seller_user_id: newPost.value.seller_user_id,
+            book_id: bookId.value,
+            book_condition: newPost.value.condition,
+            price: newPost.value.price,
         });
 
-        if (!postResponse.ok) {
-        throw new Error('Failed to add post');
-        }
-
-        alert('Post added successfully!');
-        fetchPosts(isbn.value);
+        fetchPosts();
+        alert("Post added successfully!");
+        
+        // 清空
         showAddPostModal.value = false;
+        newPost.value = {
+            seller_user_id: userID,
+            book_id: bookId.value,
+            condition: "",
+            price: null,
+        };
     } catch (error) {
-        console.error('Error adding post:', error);
-        alert('Failed to add post. Please try again.');
+        console.error("Error adding post:", error);
+        alert("Failed to add post. Please try again.");
     }
 };
 
-const replyToPost = (postId, sellerUserId) => {
-    if (!currentUser.value || !currentUser.value.id) {
-        alert('Please log in to reply.');
-        return;
-    }
+// ---- Reply 變數 ----
+const showReplyModal = ref(false);
+const currentPost = ref(null);
+const newReply = ref("");
 
-    fetch(`/api/v1/reply/history?post_id=${encodeURIComponent(postId)}&seller_user_id=${encodeURIComponent(sellerUserId)}&buyer_user_id=${encodeURIComponent(currentUser.value.id)}`)
-        .then((response) => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch conversation history');
-        }
-        return response.json();
-        })
-        .then((data) => {
-        currentConversation.value = data.reply_history || [];
-        showReplyModal.value = true;
-        })
-        .catch((error) => {
-        console.error('Error fetching conversation history:', error);
-        currentConversation.value = [];
-        showReplyModal.value = true;
-        });
+// ---- 開啟 Reply Modal ----
+const openReplyModal = (post) => {
+    currentPost.value = post; 
+    console.log("currentPost in openReplyModal:", currentPost.value); // 打印 currentPost
+    showReplyModal.value = true; 
 };
 
-const sendReply = (postId, sellerUserId) => {
-    if (!newMessageContent.value) {
-        alert('Message cannot be empty.');
+// ---- 新增 Reply ----
+const sendReply = async () => {
+    if (!newReply.value.trim()) {
+        alert("Message cannot be empty!");
         return;
     }
 
-    const replyData = {
-        from_user_id: currentUser.value.id,
-        to_user_id: sellerUserId,
-        post_id: postId,
-        message: newMessageContent.value,
-    };
+    try {
+        await axios.post(`${apiUrl}/reply/add_reply`, {
+            from_user_id: userID,
+            to_user_id: currentPost.value.seller,
+            post_id: currentPost.value.post_id,
+            message: newReply.value.trim(),
+        });
 
-    fetch('/api/v1/reply/add_reply', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(replyData),
-    })
-        .then((response) => {
-        if (!response.ok) {
-            throw new Error('Failed to send reply');
-        }
-        return response.json();
-        })
-        .then((createdReply) => {
-        currentConversation.value.push({
-            ...createdReply,
-            reply_time: new Date().toISOString(),
-        });
-        newMessageContent.value = '';
-        })
-        .catch((error) => {
-        console.error('Error sending reply:', error);
-        alert('Failed to send reply. Please try again.');
-        });
+        alert("Reply sent successfully!");
+
+        newReply.value = "";
+        showReplyModal.value = false;
+    } catch (error) {
+        console.error("Error sending reply:", error);
+        alert("Failed to send reply. Please try again.");
+    }
+};
+
+const closeReplyModal = () => {
+    showReplyModal.value = false;
+    currentPost.value = null;
+    newReply.value = "";
 };
 
 onMounted(() => {
-    console.log('Received ISBN:', isbn.value);
-    if (!isbn.value) {
-        alert('ISBN is missing!');
-        return;
-    }
-
-    fetchBookDetails(isbn.value);
-    fetchPosts(isbn.value);
+    fetchBookDetails();
+    fetchPosts();
 });
 </script>
 
@@ -211,7 +167,7 @@ onMounted(() => {
       <div class="post-section">
         <div class="post-header">
           <h4><b>Seller Posts</b></h4>
-          <button @click="showAddPostModal = true" class="add-post-button">+ Add Post</button>
+          <button @click="showAddPostModal = true" class="btn btn-secondary">+ Add Post</button>
         </div>
 
         <table class="posts-table">
@@ -227,11 +183,11 @@ onMounted(() => {
           <tbody>
             <tr v-for="post in posts" :key="post.id">
               <td>{{ post.seller }}</td>
-              <td>{{ post.date }}</td>
+              <td>{{ post.postDate }}</td>
               <td>{{ post.condition }}</td>
               <td>${{ post.price }}</td>
               <td>
-                <button @click="replyToPost(post.id, post.seller_user_id)" class="reply-button">Reply</button>
+                <button @click="openReplyModal(post)" class="btn btn-secondary">Reply</button>
               </td>
             </tr>
           </tbody>
@@ -270,30 +226,31 @@ onMounted(() => {
     </div>
   </div>
 
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModㄗㄗal = false">
+  <!-- Reply Modal -->
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="closeReplyModal">
     <div class="modal-content">
-      <h4>Conversation</h4>
-      <div class="conversation">
-        <p v-if="currentConversation.length === 0" class="no-history">
-          No conversation history. Start a new chat!
-        </p>
-        <div
-          v-for="message in currentConversation"
-          :key="message.reply_id"
-          class="message"
-          :class="{ 'sent': message.from_user_id === currentUser.id, 'received': message.to_user_id === currentUser.id }"
-        >
-          <p>{{ message.message }}</p>
-          <span class="time">{{ message.reply_time }}</span>
+        <!-- 上半部分：Post 資訊 -->
+        <div class="post-details">
+            <h4>Reply</h4>
+            <p><b>Seller:</b> {{ currentPost?.seller }}</p>
+            <p><b>Price:</b> ${{ currentPost?.price }}</p>
+            <p><b>Condition:</b> {{ currentPost?.condition }}</p>
         </div>
-      </div>
-      <form @submit.prevent="sendReply(postId, sellerUserId)">
-        <textarea v-model="newReply" placeholder="Type your message..." required></textarea>
-        <div class="button-group">
-          <button type="submit" class="btn-submit">Send</button>
-          <button type="button" class="btn-cancel" @click="showReplyModal = false">Cancel</button>
-        </div>
-      </form>
+        <hr />
+
+        <!-- 下半部分：Reply 表單 -->
+        <form @submit.prevent="sendReply">
+            <textarea
+                v-model="newReply"
+                placeholder="Type your reply here..."
+                rows="4"
+                required
+            ></textarea>
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Send Reply</button>
+                <button type="button" class="btn-cancel" @click="closeReplyModal">Cancel</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -374,16 +331,6 @@ justify-content: space-between;
 align-items: center;
 }
 
-.add-post-button {
-border-radius: 5px;
-cursor: pointer;
-}
-
-.add-post-button:hover {
-border-color: #555555cf; 
-background-color: #f0f0f0; 
-}
-
 .posts-table {
 width: 100%;
 border-collapse: collapse;
@@ -409,19 +356,6 @@ background-color: #f9f9f9;
 
 .posts-table tr:hover {
 background-color: #f1f1f1;
-}
-
-.reply-button {
-padding: 5px 10px;
-background-color: #28a745;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-}
-
-.reply-button:hover {
-background-color: #0c5108;
 }
 
 .modal-overlay {
