@@ -50,7 +50,7 @@
       >
         <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
         <p><b>{{ book.BookName }}</b></p>
-        <p><b>Author: </b><br>{{ book.Author }}</p>
+        <p><b>Author: </b>{{ book.Author }}</p>
         <p><b>Public Year: </b>{{ book.PublicYear }}</p>
       </div>
     </div>
@@ -553,7 +553,11 @@ async addBookManually() {
 
 <style scoped>
 .home {
-  padding-top: 20px; 
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平置中 */
+  height: 100vh; /* 讓內容佔滿頁面高度 */
 }
 
 body {
@@ -567,15 +571,17 @@ body.modal-open {
 
 .main-content {
   display: flex;
-  justify-content: space-between; 
+  justify-content: center; /* 水平置中 */
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px; 
+  margin-top: 5px; /* 視需要增加上方的緊湊感 */
+  width: 100%; /* 確保內容寬度一致 */
 }
 
 .header {
   text-align: center;
   margin-bottom: 10px;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .title {
@@ -602,7 +608,8 @@ object-fit: cover; /* 確保圖片不會變形 */
 .categories {
   display: flex;
   gap: 20px; 
-  margin-bottom: 20px;
+  margin-bottom: 20px; 
+  margin-top: 20px; 
 }
 
 .category {
@@ -773,19 +780,24 @@ object-fit: cover; /* 確保圖片不會變形 */
 .books-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; 
-  justify-content: flex-start; 
-  margin-bottom: 200px;
+  gap: 20px;
+  justify-content: center; /* 水平置中 */
+  align-items: center; /* 垂直置中 */
 }
 
 
 .book-card {
-  width: 200px;
-  text-align: center; 
-  padding: 10px; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  width: 220px; /* 固定寬度 */
+  height: 300px; /* 固定高度 */
+  display: flex;
+  flex-direction: column; /* 垂直排列內容 */
+  justify-content: space-between; /* 在卡片內均分空間 */
+  align-items: center; /* 水平置中 */
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px; /* 圓角 */
   background-color: #fff;
+  overflow: hidden; /* 隱藏超出範圍的內容 */
 }
 
 
