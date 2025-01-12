@@ -791,7 +791,7 @@ object-fit: cover; /* 確保圖片不會變形 */
 
 .book-card {
   width: 220px; /* 固定寬度 */
-  height: auto; 
+  height: 350px; 
   display: flex;
   flex-direction: column; /* 垂直排列內容 */
   justify-content: space-between; /* 在卡片內均分空間 */
