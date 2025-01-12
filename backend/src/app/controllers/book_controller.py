@@ -73,24 +73,7 @@ class BookController:
         logging.info("----Book_controller.book_details----")
         
         isbn = request.args.get('isbn')
-        if not isbn:
-            logging.warning("ISBN is missing in the request.")
-            return jsonify({"success": False, "error": "ISBN is required"}), 400
-
-        try:
-            book_service = BookService()
-            book = book_service.get_book_isbn_details(isbn)
-
-            if book:
-                logging.info(f"Details for book with ISBN '{isbn}' retrieved successfully.")
-                return jsonify({"success": True, "message": "Book details retrieved successfully", "book": book}), 200
-            else:
-                logging.warning(f"Book not found with ISBN '{isbn}'")
-                return jsonify({"success": False, "error": "Book not found"}), 404
-
-        except Exception as e:
-            logging.error(f"Error occurred while retrieving book details for ISBN '{isbn}': {str(e)}")
-            return jsonify({"success": False, "error": "Internal server error"}), 500
-
+        book = BookService.get_book_isbn_details(isbn)
+        return book, 200
     
 book_controller = BookController()

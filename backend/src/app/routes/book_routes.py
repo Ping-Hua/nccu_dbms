@@ -10,4 +10,4 @@ book_bp.add_url_rule('/booklist', view_func=book_controller.get_booklist, method
 book_bp.add_url_rule('/booklist/<int:genre_id>', view_func=book_controller.get_booklist, methods=['GET'])
 book_bp.add_url_rule('/search_books', view_func=book_controller.search_books, methods=['GET'])
 book_bp.add_url_rule('/get_book_by_isbn', view_func=isbn_controller.get_book_by_isbn, methods=['GET'])
-book_bp.add_url_rule('/book/details', view_func=book_controller.book_details, methods=['GET'])
+book_bp.add_url_rule('/details', view_func=book_controller.book_details, methods=['GET'])

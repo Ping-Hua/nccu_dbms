@@ -13,8 +13,7 @@ class BookService:
             raise ValidationError("Missing required fields: ISBN, book_name, author, public_year, publisher, book_picture_url, genre_id")
 
         # 判斷 ISBN 唯一
-        cursor.execute(
-            "SELECT COUNT(*) FROM book WHERE ISBN = ?", (ISBN,))
+        cursor.execute("SELECT COUNT(*) FROM book WHERE ISBN = ?", (ISBN,))
         result = cursor.fetchone()
 
         if result[0] > 0:
@@ -118,32 +117,30 @@ class BookService:
     
     @staticmethod
     @use_db   
-    def get_book_isbn_details(isbn):
-        try:
-            db = get_db()
-            
-            sql_query = """
-                SELECT ISBN, book_name , author, public_year, publisher, book_picture_url
-                FROM book
-                WHERE ISBN = ?
-            """
-            
-            book = db.execute(sql_query, (isbn,)).fetchone()
+    def get_book_isbn_details(cursor, isbn):
 
-            if not book:
-                return None
+        if isbn is None:
+            raise ValidationError("Missing required fields: ISBN")
+        cursor.execute(
+            "SELECT book_id, book_name, ISBN, author, public_year, book_picture_url, genre_id FROM book "
+            "WHERE ISBN = ?",
+            (isbn,)
+        )
 
-            return {
-                    "ISBN": book["ISBN"],
-                    "BookName": book["book_name"],
-                    "Author": book["author"],
-                    "PublicYear": book["public_year"],
-                    "Publisher": book["publisher"],
-                    "BookPictureUrl": book["book_picture_url"],
-                }
+        book = cursor.fetchone()
+        if book is None:
+            raise ResourceNotFoundError("Unable to find book by ISBN")
+        
+        book_data = {
+            "book_id": book[0],
+            "book_name": book[1],
+            "ISBN": book[2],
+            "author": book[3],
+            "public_year": book[4],
+            "book_picture_url": book[5],
+            "genre_id": book[6]
+        }
 
-        except Exception as e:
-            logging.error(f"Error in BookService.get_book_by_isbn: {str(e)}")
-            raise e
+        return book_data
         
     
