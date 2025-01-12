@@ -24,7 +24,8 @@ const router = createRouter({
     {
         path: '/post',
         name: 'post',
-        component: () => import('../views/PostView.vue')
+        component: () => import('../views/PostView.vue'),
+        meta: { requireAuth: 'true' },
     },
     {
         path: '/comments',

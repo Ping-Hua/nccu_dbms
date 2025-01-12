@@ -1,3 +1,200 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const isbn = ref(route.params.isbn);
+const book = ref({});
+const posts = ref([]);
+const showAddPostModal = ref(false);
+const newPost = ref({
+    condition: '',
+    price: '',
+});
+const currentUser = ref({
+    id: '12345',
+    name: 'Alice',
+});
+const showReplyModal = ref(false);
+const currentReplySellerId = ref(null);
+const currentReplySellerName = ref('');
+const currentConversation = ref([]);
+const newMessageContent = ref('');
+
+const fetchBookDetails = async (isbn) => {
+    try {
+        const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
+        if (!response.ok) {
+        throw new Error('Failed to fetch book details');
+        }
+
+        const data = await response.json();
+        console.log('Fetched book details:', data);
+
+        if (!data.ISBN) {
+        throw new Error('No book data found');
+        }
+
+        book.value = {
+        BookPictureUrl: data.book_picture_url,
+        BookName: data.book_name,
+        Author: data.author,
+        PublicYear: data.public_year,
+        Publisher: data.publisher || 'Unknown',
+        };
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        alert('Failed to fetch book details. Please try again.');
+    }
+};
+
+const fetchPosts = async (isbn) => {
+    try {
+        console.log('Fetching posts for ISBN:', isbn);
+        const response = await fetch(`/api/v1/post/get_isbn_post?isbn=${isbn}`);
+        if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+        }
+
+        const data = await response.json();
+        console.log('Fetched posts:', data);
+
+        posts.value = data.map((post) => ({
+        id: post.post_id,
+        seller: `User ${post.seller_user_id}`,
+        date: new Date(post.create_time.replace(' ', 'T')).toLocaleDateString(),
+        condition: post.book_condition,
+        price: post.price,
+        }));
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        alert('Failed to fetch posts. Please try again.');
+    }
+};
+
+const addPost = async () => {
+    try {
+        const bookListResponse = await fetch('/api/v1/book/booklist');
+        if (!bookListResponse.ok) {
+        throw new Error('Failed to fetch book list');
+        }
+
+        const bookList = await bookListResponse.json();
+
+        const selectedBook = bookList.find((book) => book.isbn === isbn.value);
+        if (!selectedBook) {
+        throw new Error('Book not found in the book list');
+        }
+
+        const book_id = selectedBook.book_id;
+
+        const newPostData = {
+        seller_user_id: currentUser.value.id,
+        book_id: book_id,
+        book_condition: newPost.value.condition,
+        price: newPost.value.price,
+        };
+
+        console.log('Sending New Post Data:', newPostData);
+
+        const postResponse = await fetch('/api/v1/post/add_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPostData),
+        });
+
+        if (!postResponse.ok) {
+        throw new Error('Failed to add post');
+        }
+
+        alert('Post added successfully!');
+        fetchPosts(isbn.value);
+        showAddPostModal.value = false;
+    } catch (error) {
+        console.error('Error adding post:', error);
+        alert('Failed to add post. Please try again.');
+    }
+};
+
+const replyToPost = (postId, sellerUserId) => {
+    if (!currentUser.value || !currentUser.value.id) {
+        alert('Please log in to reply.');
+        return;
+    }
+
+    fetch(`/api/v1/reply/history?post_id=${encodeURIComponent(postId)}&seller_user_id=${encodeURIComponent(sellerUserId)}&buyer_user_id=${encodeURIComponent(currentUser.value.id)}`)
+        .then((response) => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch conversation history');
+        }
+        return response.json();
+        })
+        .then((data) => {
+        currentConversation.value = data.reply_history || [];
+        showReplyModal.value = true;
+        })
+        .catch((error) => {
+        console.error('Error fetching conversation history:', error);
+        currentConversation.value = [];
+        showReplyModal.value = true;
+        });
+};
+
+const sendReply = (postId, sellerUserId) => {
+    if (!newMessageContent.value) {
+        alert('Message cannot be empty.');
+        return;
+    }
+
+    const replyData = {
+        from_user_id: currentUser.value.id,
+        to_user_id: sellerUserId,
+        post_id: postId,
+        message: newMessageContent.value,
+    };
+
+    fetch('/api/v1/reply/add_reply', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(replyData),
+    })
+        .then((response) => {
+        if (!response.ok) {
+            throw new Error('Failed to send reply');
+        }
+        return response.json();
+        })
+        .then((createdReply) => {
+        currentConversation.value.push({
+            ...createdReply,
+            reply_time: new Date().toISOString(),
+        });
+        newMessageContent.value = '';
+        })
+        .catch((error) => {
+        console.error('Error sending reply:', error);
+        alert('Failed to send reply. Please try again.');
+        });
+};
+
+onMounted(() => {
+    console.log('Received ISBN:', isbn.value);
+    if (!isbn.value) {
+        alert('ISBN is missing!');
+        return;
+    }
+
+    fetchBookDetails(isbn.value);
+    fetchPosts(isbn.value);
+});
+</script>
+
+
+
+
+
 <template>
   <div class="home">
     <div class="post-page">
@@ -103,216 +300,6 @@
 </div>
   </div>
 </template>
-
-<script> 
-export default {
-props: ['isbn'], 
-data() {
-return {
-  book: {}, 
-  posts: [],
-  showAddPostModal: false, 
-  newPost: {
-    condition: '',
-    price: '',
-  },
-  currentUser: {
-    id: '12345', 
-    name: 'Alice', 
-  },
-  selectedBook: {
-    id: this.ISBN,
-  },
-  showReplyModal: false, 
-  currentReplySellerId: null,
-  currentReplySellerName: '',
-  currentConversation: [],
-  newMessageContent: '',
-};
-},
-
-created() {
-  const isbn = this.$route.params.isbn;
-  console.log("Received ISBN:", isbn);
-
-  if (!isbn) {
-    alert("ISBN is missing!");
-    return;
-  }
-
-  this.fetchBookDetails(isbn); 
-  this.fetchPosts(isbn);
-},
-
-methods: {
-  async fetchBookDetails(isbn) {
-  try {
-    const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch book details");
-    }
-
-    const data = await response.json();
-
-    console.log("Fetched book details:", data);
-
-    if (!data.ISBN) {
-      throw new Error("No book data found");
-    }
-
-    this.book = {
-      BookPictureUrl: data.book_picture_url,
-      BookName: data.book_name,
-      Author: data.author,
-      PublicYear: data.public_year,
-      Publisher: data.publisher || "Unknown", 
-    };
-  } catch (error) {
-    console.error("Error fetching book details:", error);
-    alert("Failed to fetch book details. Please try again.");
-  }
-},
-
-async fetchPosts(isbn) {
-  try {
-    console.log("Fetching posts for ISBN:", isbn);
-    const response = await fetch(`/api/v1/post/get_isbn_post?isbn=${isbn}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch posts");
-    }
-
-    const data = await response.json();
-    console.log("Fetched posts:", data);
-
-    this.posts = data.map((post) => ({
-      id: post.post_id,
-      seller: `User ${post.seller_user_id}`,
-      date: new Date(post.create_time.replace(" ", "T")).toLocaleDateString(),
-      condition: post.book_condition,
-      price: post.price,
-    }));
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    alert("Failed to fetch posts. Please try again.");
-  }
-},
-
-
-async addPost() {
-  try {
-    const bookListResponse = await fetch('/api/v1/book/booklist');
-    if (!bookListResponse.ok) {
-      throw new Error('Failed to fetch book list');
-    }
-
-    const bookList = await bookListResponse.json();
-
-    const selectedBook = bookList.find(book => book.isbn === this.$route.params.isbn);
-    if (!selectedBook) {
-      throw new Error('Book not found in the book list');
-    }
-
-    const book_id = selectedBook.book_id;
-
-    const newPostData = {
-      seller_user_id: this.currentUser.id,
-      book_id: book_id, 
-      book_condition: this.newPost.condition,
-      price: this.newPost.price,
-    };
-
-    console.log('Sending New Post Data:', newPostData);
-
- 
-    const postResponse = await fetch('/api/v1/post/add_post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newPostData),
-    });
-
-    if (!postResponse.ok) {
-      throw new Error('Failed to add post');
-    }
-
-    alert('Post added successfully!');
-    this.fetchPosts(this.$route.params.isbn); 
-    this.showAddPostModal = false;
-  } catch (error) {
-    console.error('Error adding post:', error);
-    alert('Failed to add post. Please try again.');
-  }
-},
-
-
-
-replyToPost(postId, sellerUserId) {
-if (!this.currentUser || !this.currentUser.id) {
-  alert('Please log in to reply.');
-  return;
-}
-
-fetch(`/api/v1/reply/history?post_id=${encodeURIComponent(postId)}&seller_user_id=${encodeURIComponent(sellerUserId)}&buyer_user_id=${encodeURIComponent(this.currentUser.id)}`)
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Failed to fetch conversation history');
-    }
-    return response.json();
-  })
-  .then((data) => {
-    this.currentConversation = data.reply_history || [];
-    this.showReplyModal = true;
-  })
-  .catch((error) => {
-    console.error('Error fetching conversation history:', error);
-    this.currentConversation = [];
-    this.showReplyModal = true;
-  });
-
-},
-
-sendReply(postId, sellerUserId) {
-if (!this.newReply) {
-  alert('Message cannot be empty.');
-  return;
-}
-
-const replyData = {
-  from_user_id: this.currentUser.id,
-  to_user_id: sellerUserId,
-  post_id: postId,
-  message: this.newReply,
-};
-
-fetch('/api/v1/reply/add_reply', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(replyData),
-})
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Failed to send reply');
-    }
-    return response.json();
-  })
-  .then((createdReply) => {
-    this.currentConversation.push({
-      ...createdReply,
-      reply_time: new Date().toISOString(),
-    });
-    this.newReply = ''; 
-  })
-  .catch((error) => {
-    console.error('Error sending reply:', error);
-    alert('Failed to send reply. Please try again.');
-  });
-},
-
-
-}
-};
-</script>
 
 
 <style scoped>
