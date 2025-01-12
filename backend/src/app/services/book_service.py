@@ -1,6 +1,7 @@
 from app.database import use_db
 import logging
 from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
+from app.database import get_db
 
 class BookService:
     @staticmethod
@@ -12,8 +13,7 @@ class BookService:
             raise ValidationError("Missing required fields: ISBN, book_name, author, public_year, publisher, book_picture_url, genre_id")
 
         # 判斷 ISBN 唯一
-        cursor.execute(
-            "SELECT COUNT(*) FROM book WHERE ISBN = ?", (ISBN,))
+        cursor.execute("SELECT COUNT(*) FROM book WHERE ISBN = ?", (ISBN,))
         result = cursor.fetchone()
 
         if result[0] > 0:
@@ -114,5 +114,33 @@ class BookService:
             }
             book_json.append(book_data)
         return book_json
+    
+    @staticmethod
+    @use_db   
+    def get_book_isbn_details(cursor, isbn):
+
+        if isbn is None:
+            raise ValidationError("Missing required fields: ISBN")
+        cursor.execute(
+            "SELECT book_id, book_name, ISBN, author, public_year, book_picture_url, genre_id FROM book "
+            "WHERE ISBN = ?",
+            (isbn,)
+        )
+
+        book = cursor.fetchone()
+        if book is None:
+            raise ResourceNotFoundError("Unable to find book by ISBN")
+        
+        book_data = {
+            "book_id": book[0],
+            "book_name": book[1],
+            "ISBN": book[2],
+            "author": book[3],
+            "public_year": book[4],
+            "book_picture_url": book[5],
+            "genre_id": book[6]
+        }
+
+        return book_data
         
     

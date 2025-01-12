@@ -2,14 +2,13 @@
   <div class="home">
     <div class="post-page">
       <div class="book-info">
-          <img :src="book.CoverImage" alt="Book Cover" class="book-cover" />
-          <div class="book-details">
-            <h2 class="book-title">{{ book.BookName }}</h2>
-            <p class="book-meta"><strong>Author:</strong> {{ book.Author }}</p>
-            <p class="book-meta"><strong>Version:</strong> {{ book.Version }}</p>
-            <p class="book-meta"><strong>Publication Year:</strong> {{ book.PublicYear }}</p>
-            <p class="book-meta"><strong>Publisher:</strong> {{ book.Publisher }}</p>
-          </div>
+        <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
+        <div class="book-details">
+          <h2 class="book-title">{{ book.BookName }}</h2>
+          <p class="book-meta"><strong>Author:</strong> {{ book.Author }}</p>
+          <p class="book-meta"><strong>Publication Year:</strong> {{ book.PublicYear }}</p>
+          <p class="book-meta"><strong>Publisher:</strong> {{ book.Publisher }}</p>
+        </div>
       </div>
       <hr />
       <div class="post-section">
@@ -21,7 +20,6 @@
         <table class="posts-table">
           <thead>
             <tr>
-              <th>Status</th>
               <th>Seller</th>
               <th>Post Date</th>
               <th>Book Condition</th>
@@ -31,7 +29,6 @@
           </thead>
           <tbody>
             <tr v-for="post in posts" :key="post.id">
-              <td>{{ post.status }}</td>
               <td>{{ post.seller }}</td>
               <td>{{ post.date }}</td>
               <td>{{ post.condition }}</td>
@@ -76,7 +73,7 @@
     </div>
   </div>
 
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModal = false">
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModㄗㄗal = false">
     <div class="modal-content">
       <h4>Conversation</h4>
       <div class="conversation">
@@ -109,22 +106,22 @@
 
 <script> 
 export default {
-props: ['isbn'], // 接收書籍的 ISBN
+props: ['isbn'], 
 data() {
 return {
-  book: {}, // 書籍資訊
-  posts: [], // 貼文列表
-  showAddPostModal: false, // 控制模態框顯示
+  book: {}, 
+  posts: [],
+  showAddPostModal: false, 
   newPost: {
     condition: '',
     price: '',
   },
   currentUser: {
-    id: '12345', // 假設當前用戶 ID
-    name: 'Alice', // 假設當前用戶名稱
+    id: '12345', 
+    name: 'Alice', 
   },
   selectedBook: {
-    id: '67890', // 假設書籍 ID
+    id: this.ISBN,
   },
   showReplyModal: false, 
   currentReplySellerId: null,
@@ -136,134 +133,117 @@ return {
 
 created() {
   const isbn = this.$route.params.isbn;
-  console.log('ISBN received:', isbn);
+  console.log("Received ISBN:", isbn);
+
   if (!isbn) {
-    alert('No ISBN provided. Cannot display book details.');
+    alert("ISBN is missing!");
     return;
   }
-  this.fetchBookDetails(isbn); // 傳入 ISBN 獲取書籍資訊
-  this.fetchPosts(); // 獲取該書的貼文
+
+  this.fetchBookDetails(isbn); 
+  this.fetchPosts(isbn);
 },
+
 methods: {
-  // 獲取書籍詳細資訊
-  fetchBookDetails(isbn) {
-  fetch(`/api/v1/book/details?isbn=${encodeURIComponent(isbn)}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch book details');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      this.book = {
-        CoverImage: data.book_picture_url,
-        BookName: data.book_name,
-        Author: data.author,
-        PublicYear: data.public_year,
-        Publisher: data.publisher,
-      };
-    })
-    .catch((error) => {
-      console.error('Error fetching book details:', error);
-      alert('An error occurred while fetching the book details.');
-    });
-},
-
-
-  // 獲取貼文
-  fetchPosts() {
-    fetch('/api/v1/post/get_all_post', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-        return response.json();
-      })
-      .then((posts) => {
-        // 假設後端返回的數據格式正確
-        this.posts = posts.map((post) => ({
-          id: post.id,
-          status: post.status || 'Available',
-          seller: this.getSellerName(post.seller_user_id), 
-          date: post.create_time.split('T')[0],
-          condition: post.condition,
-          price: post.price,
-        }));
-        console.log('Posts fetched successfully:', this.posts);
-      })
-      .catch((error) => {
-        console.error('Error fetching posts:', error);
-        alert('Failed to fetch posts. Please try again.');
-      });
-  },
-
-
-addPost() {
-
-    if (!this.currentUser || !this.currentUser.id) {
-      console.error('Error: Current user is not defined');
-      alert('Please log in to create a post.');
-      return;
-    }
-
-    if (!this.newPost || !this.newPost.condition || !this.newPost.price) {
-    console.error('Error: New post data is incomplete');
-    alert('Please fill out all required fields.');
-    return;
-    }
-
-const newPostData = {
-  seller_user_id: this.currentUser.id, 
-  book_id: this.selectedBook.id,        
-  book_condition: this.newPost.condition, 
-  price: this.newPost.price,              
-};
-
-console.log('Sending New Post Data:', newPostData);
-
-fetch('/api/v1/post/add_post', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(newPostData),
-})
-  .then((response) => {
+  async fetchBookDetails(isbn) {
+  try {
+    const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
     if (!response.ok) {
-      throw new Error('Failed to create post');
+      throw new Error("Failed to fetch book details");
     }
-    return response.json();
-  })
-  
-  .then((createdPost) => {
-    this.posts.push({
-      id: createdPost.post_id,
-      status: 'Available', 
-      seller: this.currentUser.name,       
-      date: createdPost.create_time.split('T')[0],
-      condition: createdPost.book_condition,
-      price: createdPost.price,
+
+    const data = await response.json();
+
+    console.log("Fetched book details:", data);
+
+    if (!data.ISBN) {
+      throw new Error("No book data found");
+    }
+
+    this.book = {
+      BookPictureUrl: data.book_picture_url,
+      BookName: data.book_name,
+      Author: data.author,
+      PublicYear: data.public_year,
+      Publisher: data.publisher || "Unknown", 
+    };
+  } catch (error) {
+    console.error("Error fetching book details:", error);
+    alert("Failed to fetch book details. Please try again.");
+  }
+},
+
+async fetchPosts(isbn) {
+  try {
+    console.log("Fetching posts for ISBN:", isbn);
+    const response = await fetch(`/api/v1/post/get_isbn_post?isbn=${isbn}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch posts");
+    }
+
+    const data = await response.json();
+    console.log("Fetched posts:", data);
+
+    this.posts = data.map((post) => ({
+      id: post.post_id,
+      seller: `User ${post.seller_user_id}`,
+      date: new Date(post.create_time.replace(" ", "T")).toLocaleDateString(),
+      condition: post.book_condition,
+      price: post.price,
+    }));
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    alert("Failed to fetch posts. Please try again.");
+  }
+},
+
+
+async addPost() {
+  try {
+    const bookListResponse = await fetch('/api/v1/book/booklist');
+    if (!bookListResponse.ok) {
+      throw new Error('Failed to fetch book list');
+    }
+
+    const bookList = await bookListResponse.json();
+
+    const selectedBook = bookList.find(book => book.isbn === this.$route.params.isbn);
+    if (!selectedBook) {
+      throw new Error('Book not found in the book list');
+    }
+
+    const book_id = selectedBook.book_id;
+
+    const newPostData = {
+      seller_user_id: this.currentUser.id,
+      book_id: book_id, 
+      book_condition: this.newPost.condition,
+      price: this.newPost.price,
+    };
+
+    console.log('Sending New Post Data:', newPostData);
+
+ 
+    const postResponse = await fetch('/api/v1/post/add_post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPostData),
     });
 
-    this.newPost = { condition: '', price: '' };
-    this.showAddPostModal = false;
+    if (!postResponse.ok) {
+      throw new Error('Failed to add post');
+    }
+
     alert('Post added successfully!');
-  })
-  .catch((error) => {
-    console.error(error);
+    this.fetchPosts(this.$route.params.isbn); 
+    this.showAddPostModal = false;
+  } catch (error) {
+    console.error('Error adding post:', error);
     alert('Failed to add post. Please try again.');
-  });
+  }
 },
+
+
 
 replyToPost(postId, sellerUserId) {
 if (!this.currentUser || !this.currentUser.id) {

@@ -55,6 +55,45 @@
       </div>
     </div>
 
+    <div v-if="showConfirmModal" class="modal-overlay" @click.self="closeConfirmModal">
+      <div class="modal-content">
+        <h4>Confirm Book Details</h4>
+        <div class="form-group">
+          <label><b>Book Name:</b></label>
+          <p>{{ bookToConfirm?.BookName || "Unknown" }}</p>
+        </div>
+        <div class="form-group">
+          <label><b>Author:</b></label>
+          <p>{{ bookToConfirm?.Author || "Unknown" }}</p>
+        </div>
+        <div class="form-group">
+          <label><b>Publisher:</b></label>
+          <p>{{ bookToConfirm?.Publisher || "Unknown" }}</p>
+        </div>
+        <div class="form-group">
+          <label><b>Public Year:</b></label>
+          <p>{{ bookToConfirm?.PublicYear || "Unknown" }}</p>
+        </div>
+        <div class="form-group">
+          <label><b>ISBN:</b></label>
+          <p>{{ bookToConfirm?.ISBN }}</p>
+        </div>
+        <div class="form-group">
+          <label for="genre">Select Genre:</label>
+          <select id="genre" v-model="manualBookDetails.genre" required>
+            <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
+              {{ genre.genre_name }}
+            </option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button @click="confirmBook" class="btn-submit">Confirm</button>
+          <button @click="closeConfirmModal" class="btn-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+
     <div v-if="showISBNModal" class="modal-overlay" @click.self="closeISBNModal">
       <div class="modal-content">
         <h4>Add Book</h4>
@@ -97,7 +136,7 @@
           </div>
           <div class="form-group">
             <label for="publicYear">Public Year:</label>
-            <input type="text" id="publicYear" v-model="manualBookDetails.publicyear" required autocomplete="off"/>
+            <input type="text" id="publicYear" v-model="manualBookDetails.publicYear" required autocomplete="off"/>
           </div>
           <div class="form-group">
             <label for="publisher">Publisher:</label>
@@ -106,8 +145,8 @@
           <div class="form-group">
             <label for="genre">Genre:</label>
             <select id="genre" v-model="manualBookDetails.genre" required>
-              <option v-for="genre in genres" :key="genre.Genre_ID" :value="genre.Genre_ID">
-                {{ genre.GenreName }}
+              <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
+                {{ genre.genre_name }}
               </option>
             </select>
           </div>
@@ -134,8 +173,8 @@
 
 
 <script>
-import mockBooks from "../mock/mock.js";
 import searchIcon from "../assets/search_icon.png";
+const API_BASE_URL = import.meta.env.VITE_BE_API_BASE_URL;
 
 export default {
   data() {
@@ -143,10 +182,12 @@ export default {
       books: [], 
       genres: [], 
       selectedGenre: null, 
-      showISBNModal: false, // ISBN 模態框
-      showManualModal: false, // 手動輸入模態框
+      showISBNModal: false,
+      showManualModal: false,
+      showConfirmModal: false,
       isbn: "", 
       searchQuery: "", 
+      bookToConfirm: null,
       manualBookDetails: {
       name: '',
       author: '',
@@ -160,20 +201,11 @@ export default {
     };
   },
   created() {
-    this.initializeData();
     this.fetchAllBooks(); // 初始化時獲取所有書籍
     this.fetchGenres(); // 初始化時獲取所有書籍
   },
   
   methods: {
-  initializeData() {
-    this.books = mockBooks; // 使用假書籍數據初始化
-    this.genres = [
-      { Genre_ID: 1, GenreName: "Fiction" },
-      { Genre_ID: 2, GenreName: "Non-Fiction" },
-    ]; 
-  },
-
   openISBNModal() {
     this.isbn = ""; 
     this.showISBNModal = true; 
@@ -185,15 +217,17 @@ export default {
 
   // 跳轉到詳細頁面
   viewBookDetails(isbn) {
-    console.log('Navigating to ISBN:', isbn); 
+    console.log("Navigating to post page with ISBN:", isbn); // Debug 輸出
+
     if (!isbn) {
-      alert('ISBN is missing!');
+      alert("ISBN is missing!");
       return;
     }
-    this.$router.push({ name: 'post', params: { isbn } });
+
+    this.$router.push({ name: "post", params: { isbn } });
   },
 
-  async fetchAllBooks() {
+async fetchAllBooks() {
     try {
       const response = await fetch("/api/v1/book/booklist", {
         method: "GET",
@@ -223,7 +257,7 @@ export default {
     }
   },
 
-  async fetchGenres() {
+async fetchGenres() {
   try {
     const response = await fetch('/api/v1/genre/genres', {
       method: 'GET',
@@ -246,49 +280,51 @@ export default {
     alert('An error occurred while fetching the genres. Please try again.');
   }
 },
+    
+async filterBooks(genreId) {
+  this.selectedGenre = genreId;
 
-  // 按類別篩選書籍
-  async filterBooks(genreId) {
-  this.selectedGenre = genreId; // 更新選中的類別
   try {
-    let url = '/api/v1/book/booklist';
+    const url = genreId !== null
+      ? `/api/v1/book/booklist?genre_id=${genreId}`
+      : "/api/v1/book/booklist";
 
-    if (genreId !== null) {
-      url += `?genre_id=${genreId}`;
-    }
+    console.log("Fetching books with URL:", url); 
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch books.');
+      throw new Error("Failed to fetch books.");
     }
 
     const data = await response.json();
 
-    // 更新書籍列表
     this.books = data.map((book) => ({
       ISBN: book.ISBN,
       BookName: book.book_name,
       Author: book.author,
-      PublicYear: book.public_year,
+      PublicYear: book.public_year || "Unknown", // 處理空值
       Publisher: book.publisher,
       BookPictureUrl: book.book_picture_url,
       Genre: book.genre_id,
     }));
+
+    console.log("Filtered books:", this.books); // 測試輸出
   } catch (error) {
-    console.error('Error filtering books:', error);
-    alert('An error occurred while filtering books. Please try again.');
+    console.error("Error filtering books:", error);
+    alert("An error occurred while filtering books. Please try again.");
   }
 },
 
 
 
-  async searchBooks() {
+
+async searchBooks() {
     try {
       if (!this.searchQuery || this.searchQuery.trim() === '') {
         alert('Please enter a book name to search.');
@@ -315,7 +351,9 @@ export default {
           Author: book.author,
           PublicYear: book.public_year,
           Publisher: book.publisher,
-          BookPictureUrl: book.book_picture_url,
+          BookPictureUrl: book.book_picture_url
+          ? `${API_BASE_URL}/${book.book_picture_url}` 
+          : null, 
           Genre: book.genre_id 
         }));
         alert('Books fetched successfully!');
@@ -329,62 +367,108 @@ export default {
   },
 
 
-  async searchBookByISBN() {
-    try {
-        const isbn = this.isbn.trim();
+async searchBookByISBN() {
+  try {
+    const isbn = this.isbn.trim();
 
-        if (!/^\d{13}$/.test(isbn)) {
-            alert("Invalid ISBN. Please enter a valid 13-digit ISBN.");
-            return;
-        }
-
-        // 使用 Google Books API 查詢書籍
-        const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-        const response = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}&key=${apiKey}`
-        );
-
-        if (!response.ok) {
-            console.error(`Error: ${response.status}, ${response.statusText}`);
-            alert("Failed to fetch book details from Google API.");
-            return;
-        }
-
-        const data = await response.json();
-
-        // 檢查是否有書籍結果
-        if (!data.items || data.items.length === 0) {
-            alert("Book not found. Please enter details manually.");
-            this.showManualModal = true; // 顯示手動輸入模態框
-            return;
-        }
-
-        const bookInfo = data.items[0].volumeInfo;
-
-        // 將書籍資訊加入到 `books` 列表
-        this.books.push({
-            ISBN: isbn,
-            BookName: bookInfo.title,
-            Author: bookInfo.authors ? bookInfo.authors.join(", ") : "Unknown",
-            PublicYear: bookInfo.publishedDate || "Unknown",
-            Publisher: bookInfo.publisher || "Unknown",
-            BookPictureUrl: bookInfo.imageLinks?.thumbnail || "",
-            Genre: bookInfo.categories ? bookInfo.categories[0] : "General",
-        });
-
-        alert("Book added successfully!");
-    } catch (error) {
-        console.error("Error searching book by ISBN:", error);
-        alert("An error occurred while searching for the book. Please try again.");
-    } finally {
-        this.showISBNModal = false; // 關閉模態框
+    if (!/^\d{13}$/.test(isbn)) {
+      alert("Invalid ISBN. Please enter a valid 13-digit ISBN.");
+      return;
     }
+
+    const response = await fetch(`/api/v1/book/get_book_by_isbn?isbn=${isbn}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        alert("Book not found. Please enter details manually.");
+        this.showManualModal = true; // 顯示手動輸入模態框
+      } else {
+        throw new Error("Failed to fetch book details.");
+      }
+      return;
+    }
+
+    const book = await response.json();
+    this.bookToConfirm = {
+      ISBN: book.ISBN,
+      BookName: book.book_name,
+      Author: book.author,
+      PublicYear: book.public_year,
+      Publisher: book.publisher,
+      BookPictureUrl: book.book_picture_url,
+    };
+    this.showConfirmModal = true; // 顯示確認模態框
+  } catch (error) {
+    console.error("Error searching book by ISBN:", error);
+    alert("An error occurred while searching for the book. Please try again.");
+  } finally {
+    this.showISBNModal = false; // 關閉 ISBN 搜尋模態框
+  }
+},
+
+async confirmBook() {
+  if (!this.selectedGenre) {
+    alert("Please select a genre.");
+    return;
+  }
+
+  try {
+    const newBook = {
+      ...this.bookToConfirm,
+      genre_id: this.selectedGenre, // 添加分類 ID
+    };
+
+    const response = await fetch("/api/v1/book/add_book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newBook),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to add book.");
+    }
+
+    const addedBook = await response.json();
+
+    this.books.push({
+      ISBN: addedBook.ISBN,
+      BookName: addedBook.book_name,
+      Author: addedBook.author,
+      PublicYear: addedBook.public_year,
+      Publisher: addedBook.publisher,
+      BookPictureUrl: addedBook.book_picture_url,
+      Genre: addedBook.genre_id, // 確保分類被正確設定
+    });
+
+    // 重新套用過濾邏輯
+    this.filterBooks(this.selectedGenre);
+
+    alert("Book added successfully!");
+  } catch (error) {
+    console.error("Error confirming book:", error);
+    alert("An error occurred while confirming the book. Please try again.");
+  } finally {
+    this.closeConfirmModal();
+  }
+},
+
+
+closeConfirmModal() {
+  this.showConfirmModal = false;
+  this.bookToConfirm = null;
+  this.selectedGenre = null;
 },
 
 
 
-
-  async addBookManually() {
+async addBookManually() {
     
     try {
       const existingBook = this.books.find(
@@ -430,6 +514,8 @@ export default {
       Genre: addedBook.genre_id 
     });
 
+    await this.filterBooks(this.selectedGenre);
+
     alert('Book added successfully!');
   } catch (error) {
     console.error('Error adding book:', error);
@@ -447,22 +533,6 @@ export default {
     this.showManualModal = false;
   }
 },
-
-
-
-  // 模擬手動添加書籍
-  async submitBook() {
-    try {
-      const newBook = { ...this.newBook };
-      this.books.push(newBook); // 添加到書籍列表
-      alert("Book added successfully!");
-      this.showManualModal = false;
-      this.newBook = { BookName: "", Author: "", Version: "", Genre_ID: null, CoverImage: "" }; // 重置表單
-    } catch (error) {
-      console.error("Error adding book:", error);
-      alert("An error occurred while adding the book. Please try again.");
-    }
-  },
 },
 };
 
@@ -470,9 +540,13 @@ export default {
 
 
 <style scoped>
+.home {
+  padding-top: 20px; 
+}
+
 body {
   margin: 0;
-  padding: 0;
+  padding: 20px;
 }
 
 .main-content {
@@ -485,7 +559,7 @@ body {
 .header {
   text-align: center;
   margin-bottom: 10px;
-  margin-top: 5px;
+  margin-top: 20px; 
 }
 
 .title {
@@ -697,4 +771,6 @@ object-fit: cover; /* 確保圖片不會變形 */
   border-radius: 8px; /* 圓角 */
   background-color: #fff;
 }
+
+
 </style>

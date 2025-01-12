@@ -195,3 +195,30 @@ class PostService:
         }
         logging.info(f"Post with post_id {post_id} deleted successfully.")
         return deleted_post
+    
+    @staticmethod
+    @use_db
+    def get_post_by_isbn(cursor, isbn):
+        cursor.execute("""
+                       SELECT post.post_id, post.seller_user_id, post.book_id, post.book_condition, post.price, post.create_time, book.ISBN, book.book_name
+                       FROM post 
+                       JOIN book ON post.book_id = book.book_id
+                       """
+                    )
+        posts = cursor.fetchall()      
+        if not posts:
+            raise ResourceNotFoundError(f"No post found for the ISBN: {isbn}")
+        
+        post_list = []
+        for post in posts:
+            post_list.append({
+                "post_id": post[0],
+                "seller_user_id": post[1],
+                "book_id": post[2],
+                "book_condition": post[3],
+                "price": post[4],
+                "create_time": post[5],
+                "ISBN": post[6],
+                "book_name": post[7]
+            })
+        return post_list
