@@ -69,28 +69,28 @@ class BookController:
             logging.error(f"Error occurred while searching book with {user_query}: {str(e)}")
             return jsonify({"success": False, "error": str(e)}),500
     
-    def get_book_by_isbn():
-        isbn = request.args.get('isbn')  # 從查詢參數中獲取 ISBN
+    def book_details(self):
+        logging.info("----Book_controller.book_details----")
+        
+        isbn = request.args.get('isbn')
         if not isbn:
-            return jsonify({"message": "ISBN is required"}), 400
+            logging.warning("ISBN is missing in the request.")
+            return jsonify({"success": False, "error": "ISBN is required"}), 400
 
-        # 查詢資料庫
-        book = db.session.execute(
-            "SELECT * FROM Books WHERE ISBN = :isbn",
-            {"isbn": isbn}
-        ).fetchone()
+        try:
+            book_service = BookService()
+            book = book_service.get_book_isbn_details(isbn)
 
-        if not book:
-            return jsonify({"message": "Book not found"}), 404
+            if book:
+                logging.info(f"Details for book with ISBN '{isbn}' retrieved successfully.")
+                return jsonify({"success": True, "message": "Book details retrieved successfully", "book": book}), 200
+            else:
+                logging.warning(f"Book not found with ISBN '{isbn}'")
+                return jsonify({"success": False, "error": "Book not found"}), 404
 
-        # 返回書籍資料
-        return jsonify({
-            "isbn": book.ISBN,
-            "book_name": book.BookName,
-            "author": book.Author,
-            "public_year": book.PublicYear,
-            "publisher": book.Publisher,
-            "book_picture_url": book.BookPictureUrl
-        }), 200
+        except Exception as e:
+            logging.error(f"Error occurred while retrieving book details for ISBN '{isbn}': {str(e)}")
+            return jsonify({"success": False, "error": "Internal server error"}), 500
+
     
 book_controller = BookController()

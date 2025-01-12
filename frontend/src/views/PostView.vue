@@ -2,11 +2,10 @@
   <div class="home">
     <div class="post-page">
       <div class="book-info">
-          <img :src="book.CoverImage" alt="Book Cover" class="book-cover" />
+          <img :src="book.book_picture_url" alt="Book Cover" class="book-cover" />
           <div class="book-details">
             <h2 class="book-title">{{ book.BookName }}</h2>
             <p class="book-meta"><strong>Author:</strong> {{ book.Author }}</p>
-            <p class="book-meta"><strong>Version:</strong> {{ book.Version }}</p>
             <p class="book-meta"><strong>Publication Year:</strong> {{ book.PublicYear }}</p>
             <p class="book-meta"><strong>Publisher:</strong> {{ book.Publisher }}</p>
           </div>
@@ -21,7 +20,6 @@
         <table class="posts-table">
           <thead>
             <tr>
-              <th>Status</th>
               <th>Seller</th>
               <th>Post Date</th>
               <th>Book Condition</th>
@@ -31,7 +29,6 @@
           </thead>
           <tbody>
             <tr v-for="post in posts" :key="post.id">
-              <td>{{ post.status }}</td>
               <td>{{ post.seller }}</td>
               <td>{{ post.date }}</td>
               <td>{{ post.condition }}</td>
@@ -161,7 +158,7 @@ methods: {
     })
     .then((data) => {
       this.book = {
-        CoverImage: data.book_picture_url,
+        BookPictureUrl: data.book_picture_url,
         BookName: data.book_name,
         Author: data.author,
         PublicYear: data.public_year,

@@ -1,6 +1,7 @@
 from app.database import use_db
 import logging
 from app.errors.custom_exceptions import ResourceNotFoundError, ValidationError
+from app.database import get_db
 
 class BookService:
     @staticmethod
@@ -114,5 +115,35 @@ class BookService:
             }
             book_json.append(book_data)
         return book_json
+    
+    @staticmethod
+    @use_db   
+    def get_book_isbn_details(isbn):
+        try:
+            db = get_db()
+            
+            sql_query = """
+                SELECT ISBN, book_name , author, public_year, publisher, book_picture_url
+                FROM book
+                WHERE ISBN = ?
+            """
+            
+            book = db.execute(sql_query, (isbn,)).fetchone()
+
+            if not book:
+                return None
+
+            return {
+                    "ISBN": book["ISBN"],
+                    "BookName": book["book_name"],
+                    "Author": book["author"],
+                    "PublicYear": book["public_year"],
+                    "Publisher": book["publisher"],
+                    "BookPictureUrl": book["book_picture_url"],
+                }
+
+        except Exception as e:
+            logging.error(f"Error in BookService.get_book_by_isbn: {str(e)}")
+            raise e
         
     
