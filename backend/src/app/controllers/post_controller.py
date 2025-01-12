@@ -61,4 +61,11 @@ class PostController:
         post_list = PostService.get_all_post() if book_id is None else PostService.get_all_post_by_book(book_id)
         return post_list, 200
 
+
+    def get_post_by_isbn(self):
+        logging.info("----Post_controller.get_post_by_isbn----")
+        isbn = request.args.get('isbn')
+        post_list = PostService.get_post_by_isbn(isbn)
+        return post_list, 200
+
 post_controller = PostController()
