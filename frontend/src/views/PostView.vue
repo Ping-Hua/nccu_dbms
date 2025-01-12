@@ -1,19 +1,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import { useGlobalStore } from '../stores/global.js';
+
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const globalStore = useGlobalStore();
 
+const route = useRoute();
 const userID = globalStore.user.id;
 
 const book = ref({});
-const bookId = ref(null);
-bookId.value = this.$route.params.bookId;
+const bookId = ref(route.params.bookId); 
+
 const posts = ref([]);
 
-// ---- 取得書籍資訊 ----
 const fetchBookDetails = async () => {
     try {
         console.log("Fetching book details for book_id:", bookId.value);
