@@ -80,7 +80,7 @@
         </div>
         <div class="form-group">
           <label for="genre">Select Genre:</label>
-          <select id="genre" v-model="selectedGenre" required>
+          <select id="genre" v-model="manualBookDetails.genre" required>
             <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
               {{ genre.genre_name }}
             </option>
@@ -136,7 +136,7 @@
           </div>
           <div class="form-group">
             <label for="publicYear">Public Year:</label>
-            <input type="text" id="publicYear" v-model="manualBookDetails.publicyear" required autocomplete="off"/>
+            <input type="text" id="publicYear" v-model="manualBookDetails.publicYear" required autocomplete="off"/>
           </div>
           <div class="form-group">
             <label for="publisher">Publisher:</label>
@@ -144,11 +144,11 @@
           </div>
           <div class="form-group">
             <label for="genre">Genre:</label>
-            <select id="genre" v-model="selectedGenre" required>
-            <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
-              {{ genre.genre_name }}
-            </option>
-          </select>
+            <select id="genre" v-model="manualBookDetails.genre" required>
+              <option v-for="genre in genres" :key="genre.genre_id" :value="genre.genre_id">
+                {{ genre.genre_name }}
+              </option>
+            </select>
           </div>
           <div class="form-group">
             <label for="bookPicture">Book Picture URL:</label>
@@ -513,6 +513,8 @@ async addBookManually() {
       BookPictureUrl: addedBook.book_picture_url,
       Genre: addedBook.genre_id 
     });
+
+    await this.filterBooks(this.selectedGenre);
 
     alert('Book added successfully!');
   } catch (error) {
