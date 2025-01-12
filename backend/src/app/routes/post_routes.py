@@ -11,3 +11,4 @@ post_bp.add_url_rule('/get_post', view_func=post_controller.get_all_post, method
 post_bp.add_url_rule('/get_isbn_post', view_func=post_controller.get_post_by_isbn, methods=['GET'])
 post_bp.add_url_rule('/update_post', view_func=post_controller.update_post, methods=['PUT'])
 post_bp.add_url_rule('/user_post', view_func=post_controller.user_post, methods=['GET'])
+post_bp.add_url_rule('/delete_post/<int:post_id>', view_func=post_controller.delete_post, methods=['DELETE'])
