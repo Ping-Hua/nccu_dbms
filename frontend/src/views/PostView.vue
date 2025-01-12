@@ -170,7 +170,7 @@ onMounted(() => {
       <div class="post-section">
         <div class="post-header">
           <h4><b>Seller Posts</b></h4>
-          <button @click="showAddPostModal = true" class="btn btn-secondary">+ Add Post</button>
+          <button @click="showAddPostModal = true" class="btn-secondary">+ Add Post</button>
         </div>
 
         <table class="posts-table">
@@ -190,7 +190,7 @@ onMounted(() => {
               <td>{{ post.condition }}</td>
               <td>${{ post.price }}</td>
               <td>
-                <button @click="openReplyModal(post)" class="btn btn-secondary">Reply</button>
+                <button @click="openReplyModal(post)" class="reply-button">Reply</button>
               </td>
             </tr>
           </tbody>
@@ -267,6 +267,19 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-secondary{
+  margin-left: 30px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e1e1; 
 }
 
 .post-page {
@@ -466,5 +479,16 @@ margin: 10px 0;
 font-style: italic;
 }
 
+.reply-button {
+padding: 5px 10px;
+background-color: #28a745;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
 
+.reply-button:hover {
+background-color: #0c5108;
+}
 </style>

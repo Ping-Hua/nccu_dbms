@@ -722,11 +722,15 @@ object-fit: cover; /* 確保圖片不會變形 */
 
 .btn-add-book {
   margin-left: 30px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #000;
 }
 
 .btn-add-book:hover {
-  border-color: #555555cf; 
-  background-color: #f0f0f0; 
+  background-color: #e2e1e1; 
 }
 
 .btn-submit:hover {
