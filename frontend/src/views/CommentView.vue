@@ -3,7 +3,8 @@ import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL; 
-const userID = 666;
+// const userID = 666;
+const userID = globalStore.user.id;
 
 const comments = reactive([]); // 留言板列表
 const selectedPostId = ref(null); // 留言板 postID
