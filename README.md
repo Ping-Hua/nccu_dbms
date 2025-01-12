@@ -1,4 +1,4 @@
-# nccu_dbms
+![ER-model](https://github.com/user-attachments/assets/1a8533e4-61ae-4260-96c3-0e224ff286b1)# nccu_dbms
 - [專案題目說明]()
 - [ER-model](docs/ER-model.pdf)
 - [Relational-Schema](docs/Relational-Schema.pdf)
@@ -92,7 +92,9 @@ DBMS與工具：Flask 3.0.3 + SQLite\
     2. 買家：上傳書籍、留言
 
     3. 賣家：發貼文、管理已上傳貼文（修改價格及書況）、留言、下架書籍
-    
+
+![ER-model](https://github.com/user-attachments/assets/31bfab71-021e-4cf5-89df-1a4e5bb0be2d)
+
 
 ## Entity Types
 
