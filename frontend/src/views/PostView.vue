@@ -106,22 +106,22 @@
 
 <script> 
 export default {
-props: ['isbn'], // 接收書籍的 ISBN
+props: ['isbn'], 
 data() {
 return {
-  book: {}, // 書籍資訊
-  posts: [], // 貼文列表
-  showAddPostModal: false, // 控制模態框顯示
+  book: {}, 
+  posts: [],
+  showAddPostModal: false, 
   newPost: {
     condition: '',
     price: '',
   },
   currentUser: {
-    id: '12345', // 假設當前用戶 ID
-    name: 'Alice', // 假設當前用戶名稱
+    id: '12345', 
+    name: 'Alice', 
   },
   selectedBook: {
-    id: '67890', // 假設書籍 ID
+    id: this.ISBN,
   },
   showReplyModal: false, 
   currentReplySellerId: null,
@@ -133,19 +133,18 @@ return {
 
 created() {
   const isbn = this.$route.params.isbn;
-  console.log("Received ISBN:", isbn); // Debug 輸出
+  console.log("Received ISBN:", isbn);
 
   if (!isbn) {
     alert("ISBN is missing!");
     return;
   }
 
-  this.fetchBookDetails(isbn); // 獲取書籍資訊
-  this.fetchPosts(isbn); // 獲取貼文資訊
+  this.fetchBookDetails(isbn); 
+  this.fetchPosts(isbn);
 },
 
 methods: {
-  // 獲取書籍詳細資訊
   async fetchBookDetails(isbn) {
   try {
     const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
@@ -155,10 +154,8 @@ methods: {
 
     const data = await response.json();
 
-    // 檢查 data 是否正確返回
     console.log("Fetched book details:", data);
 
-    // 驗證返回的 book 是否存在，並處理資料
     if (!data.ISBN) {
       throw new Error("No book data found");
     }
@@ -168,7 +165,7 @@ methods: {
       BookName: data.book_name,
       Author: data.author,
       PublicYear: data.public_year,
-      Publisher: data.publisher || "Unknown", // 如果 publisher 為空
+      Publisher: data.publisher || "Unknown", 
     };
   } catch (error) {
     console.error("Error fetching book details:", error);
@@ -178,18 +175,19 @@ methods: {
 
 async fetchPosts(isbn) {
   try {
-    const response = await fetch(`/api/v1/post/get_posts_by_isbn?isbn=${isbn}`);
+    console.log("Fetching posts for ISBN:", isbn);
+    const response = await fetch(`/api/v1/post/get_isbn_post?isbn=${isbn}`);
     if (!response.ok) {
       throw new Error("Failed to fetch posts");
     }
 
     const data = await response.json();
-    console.log("Fetched posts:", data); 
+    console.log("Fetched posts:", data);
 
     this.posts = data.map((post) => ({
       id: post.post_id,
-      seller: post.seller_name,
-      date: post.create_time.split("T")[0],
+      seller: `User ${post.seller_user_id}`,
+      date: new Date(post.create_time.replace(" ", "T")).toLocaleDateString(),
       condition: post.book_condition,
       price: post.price,
     }));
@@ -200,63 +198,52 @@ async fetchPosts(isbn) {
 },
 
 
-
-addPost() {
-
-    if (!this.currentUser || !this.currentUser.id) {
-      console.error('Error: Current user is not defined');
-      alert('Please log in to create a post.');
-      return;
+async addPost() {
+  try {
+    const bookListResponse = await fetch('/api/v1/book/booklist');
+    if (!bookListResponse.ok) {
+      throw new Error('Failed to fetch book list');
     }
 
-    if (!this.newPost || !this.newPost.condition || !this.newPost.price) {
-    console.error('Error: New post data is incomplete');
-    alert('Please fill out all required fields.');
-    return;
+    const bookList = await bookListResponse.json();
+
+    const selectedBook = bookList.find(book => book.isbn === this.$route.params.isbn);
+    if (!selectedBook) {
+      throw new Error('Book not found in the book list');
     }
 
-const newPostData = {
-  seller_user_id: this.currentUser.id, 
-  book_id: this.selectedBook.id,        
-  book_condition: this.newPost.condition, 
-  price: this.newPost.price,              
-};
+    const book_id = selectedBook.book_id;
 
-console.log('Sending New Post Data:', newPostData);
+    const newPostData = {
+      seller_user_id: this.currentUser.id,
+      book_id: book_id, 
+      book_condition: this.newPost.condition,
+      price: this.newPost.price,
+    };
 
-fetch('/api/v1/post/add_post', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(newPostData),
-})
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Failed to create post');
-    }
-    return response.json();
-  })
-  
-  .then((createdPost) => {
-    this.posts.push({
-      id: createdPost.post_id,
-      status: 'Available', 
-      seller: this.currentUser.name,       
-      date: createdPost.create_time.split('T')[0],
-      condition: createdPost.book_condition,
-      price: createdPost.price,
+    console.log('Sending New Post Data:', newPostData);
+
+ 
+    const postResponse = await fetch('/api/v1/post/add_post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPostData),
     });
 
-    this.newPost = { condition: '', price: '' };
-    this.showAddPostModal = false;
+    if (!postResponse.ok) {
+      throw new Error('Failed to add post');
+    }
+
     alert('Post added successfully!');
-  })
-  .catch((error) => {
-    console.error(error);
+    this.fetchPosts(this.$route.params.isbn); 
+    this.showAddPostModal = false;
+  } catch (error) {
+    console.error('Error adding post:', error);
     alert('Failed to add post. Please try again.');
-  });
+  }
 },
+
+
 
 replyToPost(postId, sellerUserId) {
 if (!this.currentUser || !this.currentUser.id) {
