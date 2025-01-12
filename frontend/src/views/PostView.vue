@@ -1,23 +1,33 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import { useGlobalStore } from '../stores/global.js';
+
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL;
 const globalStore = useGlobalStore();
 
+const route = useRoute();
 const userID = globalStore.user.id;
 
 const book = ref({});
-const bookId = ref(1); // 測試用
+const bookId = route.params.bookId; 
+
 const posts = ref([]);
 
-// ---- 取得書籍資訊 ----
 const fetchBookDetails = async () => {
     try {
-        console.log("Fetching book details for book_id:", bookId.value);
+
+        if (!bookId) {
+          console.error("Book ID is missing!");
+          alert("Book ID is missing. Unable to fetch book details.");
+          return;
+        }
+
+        console.log("Fetching book details for book_id:", bookId);
         const { data } = await axios.get(`${apiUrl}/book/details`, {
-        params: { book_id: bookId.value },
+        params: { book_id: bookId },
         });
 
         
@@ -39,9 +49,9 @@ const fetchBookDetails = async () => {
 // ---- 取得該書籍的 Post ----
 const fetchPosts = async () => {
     try {
-        console.log("Fetching posts for book_id:", bookId.value);
+        console.log("Fetching posts for book_id:", bookId);
         const { data } = await axios.get(`${apiUrl}/post/get_post`, {
-            params: { book_id: bookId.value },
+            params: { book_id: bookId },
         });
 
         // 整理 Post 資料
@@ -66,7 +76,7 @@ const fetchPosts = async () => {
 const showAddPostModal = ref(false);
 const newPost = ref({
     seller_user_id: userID,
-    book_id: bookId.value,
+    book_id: bookId,
     condition: "",
     price: null,
 });
@@ -76,7 +86,7 @@ const addPost = async () => {
     try {
         const { data } = await axios.post(`${apiUrl}/post/add_post`, {
             seller_user_id: newPost.value.seller_user_id,
-            book_id: bookId.value,
+            book_id: bookId,
             book_condition: newPost.value.condition,
             price: newPost.value.price,
         });
@@ -88,7 +98,7 @@ const addPost = async () => {
         showAddPostModal.value = false;
         newPost.value = {
             seller_user_id: userID,
-            book_id: bookId.value,
+            book_id: bookId,
             condition: "",
             price: null,
         };
@@ -167,7 +177,7 @@ onMounted(() => {
       <div class="post-section">
         <div class="post-header">
           <h4><b>Seller Posts</b></h4>
-          <button @click="showAddPostModal = true" class="btn btn-secondary">+ Add Post</button>
+          <button @click="showAddPostModal = true" class="btn-secondary">+ Add Post</button>
         </div>
 
         <table class="posts-table">
@@ -187,7 +197,7 @@ onMounted(() => {
               <td>{{ post.condition }}</td>
               <td>${{ post.price }}</td>
               <td>
-                <button @click="openReplyModal(post)" class="btn btn-secondary">Reply</button>
+                <button @click="openReplyModal(post)" class="reply-button">Reply</button>
               </td>
             </tr>
           </tbody>
@@ -226,8 +236,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Reply Modal -->
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="closeReplyModal">
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModal = false">
     <div class="modal-content">
         <!-- 上半部分：Post 資訊 -->
         <div class="post-details">
@@ -264,6 +273,20 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary{
+  margin-left: 30px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e1e1; 
 }
 
 .post-page {
@@ -463,5 +486,16 @@ margin: 10px 0;
 font-style: italic;
 }
 
+.reply-button {
+padding: 5px 10px;
+background-color: #28a745;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
 
+.reply-button:hover {
+background-color: #0c5108;
+}
 </style>
