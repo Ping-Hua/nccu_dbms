@@ -217,12 +217,14 @@ export default {
 
   // 跳轉到詳細頁面
   viewBookDetails(isbn) {
-    console.log('Navigating to ISBN:', isbn); 
+    console.log("Navigating to post page with ISBN:", isbn); // Debug 輸出
+
     if (!isbn) {
-      alert('ISBN is missing!');
+      alert("ISBN is missing!");
       return;
     }
-    this.$router.push({ name: 'post', params: { isbn } });
+
+    this.$router.push({ name: "post", params: { isbn } });
   },
 
 async fetchAllBooks() {
@@ -283,11 +285,11 @@ async filterBooks(genreId) {
   this.selectedGenre = genreId;
 
   try {
-    let url = "/api/v1/book/booklist";
+    const url = genreId !== null
+      ? `/api/v1/book/booklist?genre_id=${genreId}`
+      : "/api/v1/book/booklist";
 
-    if (genreId !== null) {
-      url += `?genre_id=${genreId}`;
-    }
+    console.log("Fetching books with URL:", url); 
 
     const response = await fetch(url, {
       method: "GET",
@@ -306,16 +308,19 @@ async filterBooks(genreId) {
       ISBN: book.ISBN,
       BookName: book.book_name,
       Author: book.author,
-      PublicYear: book.public_year,
+      PublicYear: book.public_year || "Unknown", // 處理空值
       Publisher: book.publisher,
       BookPictureUrl: book.book_picture_url,
-      Genre: book.genre_id, 
+      Genre: book.genre_id,
     }));
+
+    console.log("Filtered books:", this.books); // 測試輸出
   } catch (error) {
     console.error("Error filtering books:", error);
     alert("An error occurred while filtering books. Please try again.");
   }
 },
+
 
 
 

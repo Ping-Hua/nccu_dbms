@@ -2,13 +2,13 @@
   <div class="home">
     <div class="post-page">
       <div class="book-info">
-          <img :src="book.book_picture_url" alt="Book Cover" class="book-cover" />
-          <div class="book-details">
-            <h2 class="book-title">{{ book.BookName }}</h2>
-            <p class="book-meta"><strong>Author:</strong> {{ book.Author }}</p>
-            <p class="book-meta"><strong>Publication Year:</strong> {{ book.PublicYear }}</p>
-            <p class="book-meta"><strong>Publisher:</strong> {{ book.Publisher }}</p>
-          </div>
+        <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
+        <div class="book-details">
+          <h2 class="book-title">{{ book.BookName }}</h2>
+          <p class="book-meta"><strong>Author:</strong> {{ book.Author }}</p>
+          <p class="book-meta"><strong>Publication Year:</strong> {{ book.PublicYear }}</p>
+          <p class="book-meta"><strong>Publisher:</strong> {{ book.Publisher }}</p>
+        </div>
       </div>
       <hr />
       <div class="post-section">
@@ -133,76 +133,72 @@ return {
 
 created() {
   const isbn = this.$route.params.isbn;
-  console.log('ISBN received:', isbn);
+  console.log("Received ISBN:", isbn); // Debug 輸出
+
   if (!isbn) {
-    alert('No ISBN provided. Cannot display book details.');
+    alert("ISBN is missing!");
     return;
   }
-  this.fetchBookDetails(isbn); // 傳入 ISBN 獲取書籍資訊
-  this.fetchPosts(); // 獲取該書的貼文
+
+  this.fetchBookDetails(isbn); // 獲取書籍資訊
+  this.fetchPosts(isbn); // 獲取貼文資訊
 },
+
 methods: {
   // 獲取書籍詳細資訊
-  fetchBookDetails(isbn) {
-  fetch(`/api/v1/book/details?isbn=${encodeURIComponent(isbn)}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch book details');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      this.book = {
-        BookPictureUrl: data.book_picture_url,
-        BookName: data.book_name,
-        Author: data.author,
-        PublicYear: data.public_year,
-        Publisher: data.publisher,
-      };
-    })
-    .catch((error) => {
-      console.error('Error fetching book details:', error);
-      alert('An error occurred while fetching the book details.');
-    });
+  async fetchBookDetails(isbn) {
+  try {
+    const response = await fetch(`/api/v1/book/details?isbn=${isbn}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch book details");
+    }
+
+    const data = await response.json();
+
+    // 檢查 data 是否正確返回
+    console.log("Fetched book details:", data);
+
+    // 驗證返回的 book 是否存在，並處理資料
+    if (!data.ISBN) {
+      throw new Error("No book data found");
+    }
+
+    this.book = {
+      BookPictureUrl: data.book_picture_url,
+      BookName: data.book_name,
+      Author: data.author,
+      PublicYear: data.public_year,
+      Publisher: data.publisher || "Unknown", // 如果 publisher 為空
+    };
+  } catch (error) {
+    console.error("Error fetching book details:", error);
+    alert("Failed to fetch book details. Please try again.");
+  }
 },
 
+async fetchPosts(isbn) {
+  try {
+    const response = await fetch(`/api/v1/post/get_posts_by_isbn?isbn=${isbn}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch posts");
+    }
 
-  // 獲取貼文
-  fetchPosts() {
-    fetch('/api/v1/post/get_all_post', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-        return response.json();
-      })
-      .then((posts) => {
-        // 假設後端返回的數據格式正確
-        this.posts = posts.map((post) => ({
-          id: post.id,
-          status: post.status || 'Available',
-          seller: this.getSellerName(post.seller_user_id), 
-          date: post.create_time.split('T')[0],
-          condition: post.condition,
-          price: post.price,
-        }));
-        console.log('Posts fetched successfully:', this.posts);
-      })
-      .catch((error) => {
-        console.error('Error fetching posts:', error);
-        alert('Failed to fetch posts. Please try again.');
-      });
-  },
+    const data = await response.json();
+    console.log("Fetched posts:", data); 
+
+    this.posts = data.map((post) => ({
+      id: post.post_id,
+      seller: post.seller_name,
+      date: post.create_time.split("T")[0],
+      condition: post.book_condition,
+      price: post.price,
+    }));
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    alert("Failed to fetch posts. Please try again.");
+  }
+},
+
 
 
 addPost() {

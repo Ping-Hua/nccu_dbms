@@ -20,10 +20,9 @@ const router = createRouter({
             component: () => import('../views/BookView.vue')
         },
         {
-            path: '/post/:isbn',
-            name: 'post',
+            path: "/post/:isbn",
+            name: "post",
             component: () => import('../views/PostView.vue'),
-            props: true,
         },
         {
             path: '/comments',
