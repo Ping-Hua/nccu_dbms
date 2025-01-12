@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS review;
 
 CREATE TABLE user (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT, -- not null
+    user_name TEXT, -- not null
     email TEXT NOT NULL,
     password TEXT NOT NULL,
     student_number INTEGER, -- not null
