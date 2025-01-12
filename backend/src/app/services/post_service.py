@@ -159,7 +159,7 @@ class PostService:
             FROM post p
             JOIN book b ON p.book_id = b.book_id
             WHERE p.seller_user_id = ?
-            ORDER BY b.book_name, p.post_id, p.book_condition, p.price, p.create_time
+            ORDER BY p.create_time DESC
             """,
             (user_id,)
         )
@@ -176,7 +176,12 @@ class PostService:
                 "price": post[3],
                 "create_time": post[4]
             })
-        return post_list
+
+        total_count = len(post_list)
+        return {
+            "total_count": total_count,
+            "post_list": post_list
+        }
 
     @use_db
     def service_delete_post(cursor, post_id):

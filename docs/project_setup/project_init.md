@@ -28,3 +28,13 @@ flask init-db
 # run server
 flask run
 ```
+
+## Frontend
+```bash
+cd frontend
+
+npm install
+
+# run server
+npm run dev
+```
