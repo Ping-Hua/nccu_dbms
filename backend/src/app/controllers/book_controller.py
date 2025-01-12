@@ -69,4 +69,11 @@ class BookController:
             logging.error(f"Error occurred while searching book with {user_query}: {str(e)}")
             return jsonify({"success": False, "error": str(e)}),500
     
+    def book_details(self):
+        logging.info("----Book_controller.book_details----")
+        
+        book_id = request.args.get('book_id')
+        book = BookService.get_book_isbn_details(book_id)
+        return book, 200
+    
 book_controller = BookController()
