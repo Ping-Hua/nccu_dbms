@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useGlobalStore } from "../stores/global.js";
 import UpdatePostModal from "../components/UpdatePostModal.vue";
+import DeletePostModal from "../components/DeletePostModal.vue";
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL; 
 const globalStore = useGlobalStore();
@@ -13,17 +14,31 @@ const totalCount = ref(-1);
 // const userID = 666;  // 測試用
 const userID = globalStore.user.id;
 
+const selectedPost = ref(null);
+
 // ---- 修改 Modal ----
 const showUpdateModal = ref(false);
-const selectedPost = ref(null);
 
 const openUpdateModal = (post) => {
     showUpdateModal.value = true;
     selectedPost.value = post;
 };
 
-const closeModal = () => {
+const closeUpdateModal = () => {
     showUpdateModal.value = false;
+    selectedPost.value = null;
+};
+
+// ---- 刪除 Modal ----
+const showDeleteModal = ref(false);
+
+const openDeleteModal = (post) => {
+    showDeleteModal.value = true;
+    selectedPost.value = post;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
     selectedPost.value = null;
 };
 
@@ -55,6 +70,11 @@ const handleUpdatePost = (updatedPost) => {
     getPostList();
 };   
 
+// ---- 刪除貼文後 刷新頁面 ----
+const handlePostDeleted = () => {
+    console.log("Post deleted successfully, refreshing list...");
+    getPostList();
+};
 
 onMounted(() => {
     getPostList();
@@ -91,7 +111,10 @@ onMounted(() => {
                 <div class="vr my-2"></div>
                 <div class="mx-3" style="width: 60px;">
                     <button 
-                        class="btn btn-secondary btn-sm">刪除
+                        class="btn btn-secondary btn-sm"
+                        @click="openDeleteModal(post)"
+                    >
+                        刪除
                     </button>
                 </div>
                 <div class="vr my-2"></div>
@@ -154,7 +177,15 @@ onMounted(() => {
             :initialPrice="selectedPost?.price"
             :initialBookCondition="selectedPost?.book_condition"
             @updatePost="handleUpdatePost" 
-            @close="closeModal"
+            @close="closeUpdateModal"
+        />
+
+        <!-- DeletePostModal -->
+        <DeletePostModal 
+            v-if="showDeleteModal"
+            :postId="selectedPost?.post_id"
+            @deletePost="handlePostDeleted" 
+            @close="closeDeleteModal"
         />
     </div>
 </template>
