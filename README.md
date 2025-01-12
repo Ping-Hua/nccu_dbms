@@ -95,7 +95,7 @@
 
 ## ER Model
 
-![ER-model](docs/ER-model.pdf)
+![ER-model](https://github.com/user-attachments/assets/31bfab71-021e-4cf5-89df-1a4e5bb0be2d)
 
 ## Relational Schema 
 
