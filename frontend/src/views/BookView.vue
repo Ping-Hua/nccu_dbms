@@ -309,7 +309,7 @@ async filterBooks(genreId) {
       PublicYear: book.public_year,
       Publisher: book.publisher,
       BookPictureUrl: book.book_picture_url,
-      Genre: book.genre_id, // 確保分類 ID 一致
+      Genre: book.genre_id, 
     }));
   } catch (error) {
     console.error("Error filtering books:", error);
@@ -503,7 +503,7 @@ async addBookManually() {
       ISBN: addedBook.ISBN,
       BookName: addedBook.book_name,
       Author: addedBook.author,
-      PublicYear: addedBook.public_year || this.manualBookDetails.publicYear,
+      PublicYear: addedBook.public_year,
       Publisher: addedBook.publisher,
       BookPictureUrl: addedBook.book_picture_url,
       Genre: addedBook.genre_id 

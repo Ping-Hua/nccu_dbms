@@ -73,7 +73,7 @@
     </div>
   </div>
 
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModal = false">
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModㄗㄗal = false">
     <div class="modal-content">
       <h4>Conversation</h4>
       <div class="conversation">
