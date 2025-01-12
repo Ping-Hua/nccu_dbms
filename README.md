@@ -1,5 +1,4 @@
-![ER-model](https://github.com/user-attachments/assets/1a8533e4-61ae-4260-96c3-0e224ff286b1)# nccu_dbms
-- [專案題目說明]()
+# nccu_dbms
 - [ER-model](docs/ER-model.pdf)
 - [Relational-Schema](docs/Relational-Schema.pdf)
 
