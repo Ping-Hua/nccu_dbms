@@ -1,14 +1,33 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useGlobalStore } from "../stores/global.js";
+import UpdatePostModal from "../components/UpdatePostModal.vue";
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL; 
+const globalStore = useGlobalStore();
 
 const posts = ref([]);
 const totalCount = ref(-1);
 
-const userID = 666;  // 測試用
+// const userID = 666;  // 測試用
+const userID = globalStore.user.id;
 
+// ---- 修改 Modal ----
+const showUpdateModal = ref(false);
+const selectedPost = ref(null);
+
+const openUpdateModal = (post) => {
+    showUpdateModal.value = true;
+    selectedPost.value = post;
+};
+
+const closeModal = () => {
+    showUpdateModal.value = false;
+    selectedPost.value = null;
+};
+
+// ---- 發文歷史紀錄 ----
 const getPostList = async () => {
     console.log('Fetching post List for user:', userID);
     try {
@@ -17,12 +36,9 @@ const getPostList = async () => {
         });
 
         if (data && Array.isArray(data.post_list)) {
-            posts.value = data.post_list.map((post, index) => ({
-                ...post,
-                index: index + 1,
-            }));
+            posts.value = data.post_list;
             totalCount.value = data.total_count;
-            console.log("Post list fetched successfully:", posts.value);
+            console.log("Post list fetched successfully.");
         } else {
             posts.value = []; 
             totalCount.value = 0;
@@ -32,6 +48,13 @@ const getPostList = async () => {
         console.error("Error fetching post list:", error);
     }
 };
+
+// ---- 更新貼文後 刷新頁面 ----
+const handleUpdatePost = (updatedPost) => {
+    console.log("Updated post received from modal.");
+    getPostList();
+};   
+
 
 onMounted(() => {
     getPostList();
@@ -59,7 +82,10 @@ onMounted(() => {
             >   
                 <div class="mx-3" style="width: 60px;">
                     <button 
-                        class="btn btn-secondary btn-sm">修改
+                        class="btn btn-secondary btn-sm"
+                        @click="openUpdateModal(post)"
+                    >
+                        修改
                     </button>
                 </div>
                 <div class="vr my-2"></div>
@@ -77,7 +103,7 @@ onMounted(() => {
                         </div>
 
                         <div class="d-flex align-items-center justify-content-end gap-2 ms-auto">
-                            書籍狀態：{{ post.book_condition }}
+                            書籍狀態：<strong>{{ post.book_condition }}</strong>
                         </div>
                     </div>
                     <!-- 價錢 -->
@@ -120,6 +146,16 @@ onMounted(() => {
                 <p class="text-muted text-center"> 您還沒發過文，歡迎使用 (⁎⁍̴̛ᴗ⁍̴̛⁎)</p>
             </div>
         </div>
+
+        <!-- UpdatePostModal -->
+        <UpdatePostModal 
+            v-if="showUpdateModal"
+            :postId="selectedPost?.post_id"
+            :initialPrice="selectedPost?.price"
+            :initialBookCondition="selectedPost?.book_condition"
+            @updatePost="handleUpdatePost" 
+            @close="closeModal"
+        />
     </div>
 </template>
 
