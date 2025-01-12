@@ -1,8 +1,12 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
+import { useGlobalStore } from '../stores/global.js';
+
+const globalStore = useGlobalStore();
 
 const apiUrl = import.meta.env.VITE_BE_API_BASE_URL; 
+
 // const userID = 666;
 const userID = globalStore.user.id;
 
