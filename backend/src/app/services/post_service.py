@@ -9,15 +9,15 @@ class PostService:
     @use_db
     def add_post(cursor, seller_user_id, book_id, book_condition, price):
         logging.info('info', 'add_post called with parameters: seller_user_id={seller_user_id}, book_id={book_id}, book_condition={book_condition}, price={price}')
-        
+
         if any(v is None for v in [seller_user_id, book_id, book_condition]):
             raise ValidationError("Missing required fields: seller_user_id, book_id or book_condition")
         if not isinstance(price, (int, float)) or price <= 0:
             raise ValidationError("Price must be a positive integer")
-        
+
         # 插入資料
         cursor.execute(
-            "INSERT INTO post (seller_user_id, book_id, book_condition, price) VALUES (?,?,?,?)", 
+            "INSERT INTO post (seller_user_id, book_id, book_condition, price) VALUES (?,?,?,?)",
             (seller_user_id, book_id, book_condition, price)
         )
 
@@ -31,7 +31,7 @@ class PostService:
             "price": price,
         }
         return post_data
-    
+
     @use_db
     def update_post_book(cursor, post_id, book_id):
         cursor.execute(
@@ -46,7 +46,7 @@ class PostService:
         }
 
         return post_data
-        
+
     @use_db
     def update_post_book_condition(cursor, post_id, book_condition):
         cursor.execute(
@@ -61,10 +61,10 @@ class PostService:
         }
 
         return post_data
-    
+
     @use_db
     def update_post_price(cursor, post_id, price):
-        
+
         cursor.execute(
             "UPDATE post SET price = ? WHERE post_id = ?",
             (price, post_id)
@@ -77,7 +77,7 @@ class PostService:
         }
 
         return post_data
-        
+
     @staticmethod
     @use_db
     def get_post(cursor, post_id):
@@ -86,7 +86,7 @@ class PostService:
 
         cursor.execute(
             "SELECT post_id, seller_user_id, book_id, book_condition, price, create_time "
-            "FROM post WHERE post_id =?", 
+            "FROM post WHERE post_id =?",
             (post_id,)
         )
 
@@ -104,7 +104,7 @@ class PostService:
             "create_time": post[5]
         }
         return post_data
-        
+
     @use_db
     def get_all_post(cursor):
         cursor.execute(
@@ -125,7 +125,7 @@ class PostService:
             }
             post_json.append(post_data)
         return post_json
-        
+
     @use_db
     def get_all_post_by_book(cursor, book_id):
         cursor.execute(
@@ -149,6 +149,41 @@ class PostService:
             post_json.append(post_data)
         return post_json
     @use_db
+    def get_posts_by_user(cursor, user_id):
+        if user_id is None:
+            raise ValidationError("Missing required fields: user_id")
+        
+        cursor.execute(
+            """
+            SELECT p.post_id, b.book_name, p.book_condition, p.price, p.create_time
+            FROM post p
+            JOIN book b ON p.book_id = b.book_id
+            WHERE p.seller_user_id = ?
+            ORDER BY p.create_time DESC
+            """,
+            (user_id,)
+        )
+        posts = cursor.fetchall()      
+        if not posts:
+            raise ResourceNotFoundError(f"No post found for the userID: {user_id}")
+        
+        post_list = []
+        for post in posts:
+            post_list.append({
+                "post_id": post[0],
+                "book_name": post[1],
+                "book_condition": post[2],
+                "price": post[3],
+                "create_time": post[4]
+            })
+
+        total_count = len(post_list)
+        return {
+            "total_count": total_count,
+            "post_list": post_list
+        }
+
+    @use_db
     def service_delete_post(cursor, post_id):
         # 查找貼文
         cursor.execute('SELECT post_id, seller_user_id FROM post WHERE post_id = ?', (post_id,))
@@ -161,7 +196,7 @@ class PostService:
         # 回傳刪除的貼文資訊
         deleted_post = {
             "post_id": post[0],  # 第一個欄位:post id
-            "seller_user_id": post[1]  # 第二個欄位:user id 
+            "seller_user_id": post[1]  # 第二個欄位:user id
         }
         logging.info(f"Post with post_id {post_id} deleted successfully.")
         return deleted_post
