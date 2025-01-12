@@ -226,8 +226,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Reply Modal -->
-  <div v-if="showReplyModal" class="modal-overlay" @click.self="closeReplyModal">
+  <div v-if="showReplyModal" class="modal-overlay" @click.self="showReplyModal = false">
     <div class="modal-content">
         <!-- 上半部分：Post 資訊 -->
         <div class="post-details">
