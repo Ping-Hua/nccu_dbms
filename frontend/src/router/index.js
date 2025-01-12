@@ -6,18 +6,13 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/',
-            name: 'home',
-            component: HomeView,
-        },
-        {
             path: '/user',
             name: 'user',
             component: () => import('../views/UserView.vue'),
             meta: { requireAuth: 'true' },
         },
         {
-            path: '/book',
+            path: '/',
             name: 'book',
             component: () => import('../views/BookView.vue')
         },

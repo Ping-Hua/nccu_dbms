@@ -122,7 +122,7 @@ class BookService:
         if book_id is None:
             raise ValidationError("Missing required fields: book_id")
         cursor.execute(
-            "SELECT book_id, book_name, ISBN, author, public_year, book_picture_url, genre_id FROM book "
+            "SELECT book_id, book_name, ISBN, author, public_year, book_picture_url, genre_id, publisher FROM book "
             "WHERE book_id = ?",
             (book_id,)
         )
@@ -138,7 +138,8 @@ class BookService:
             "author": book[3],
             "public_year": book[4],
             "book_picture_url": book[5],
-            "genre_id": book[6]
+            "genre_id": book[6],
+            "publisher": book[7],
         }
 
         return book_data

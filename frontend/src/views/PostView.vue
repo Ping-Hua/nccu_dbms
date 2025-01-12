@@ -12,15 +12,22 @@ const route = useRoute();
 const userID = globalStore.user.id;
 
 const book = ref({});
-const bookId = ref(route.params.bookId); 
+const bookId = route.params.bookId; 
 
 const posts = ref([]);
 
 const fetchBookDetails = async () => {
     try {
-        console.log("Fetching book details for book_id:", bookId.value);
+
+        if (!bookId) {
+          console.error("Book ID is missing!");
+          alert("Book ID is missing. Unable to fetch book details.");
+          return;
+        }
+
+        console.log("Fetching book details for book_id:", bookId);
         const { data } = await axios.get(`${apiUrl}/book/details`, {
-        params: { book_id: bookId.value },
+        params: { book_id: bookId },
         });
 
         
@@ -42,9 +49,9 @@ const fetchBookDetails = async () => {
 // ---- 取得該書籍的 Post ----
 const fetchPosts = async () => {
     try {
-        console.log("Fetching posts for book_id:", bookId.value);
+        console.log("Fetching posts for book_id:", bookId);
         const { data } = await axios.get(`${apiUrl}/post/get_post`, {
-            params: { book_id: bookId.value },
+            params: { book_id: bookId },
         });
 
         // 整理 Post 資料
@@ -69,7 +76,7 @@ const fetchPosts = async () => {
 const showAddPostModal = ref(false);
 const newPost = ref({
     seller_user_id: userID,
-    book_id: bookId.value,
+    book_id: bookId,
     condition: "",
     price: null,
 });
@@ -79,7 +86,7 @@ const addPost = async () => {
     try {
         const { data } = await axios.post(`${apiUrl}/post/add_post`, {
             seller_user_id: newPost.value.seller_user_id,
-            book_id: bookId.value,
+            book_id: bookId,
             book_condition: newPost.value.condition,
             price: newPost.value.price,
         });
@@ -91,7 +98,7 @@ const addPost = async () => {
         showAddPostModal.value = false;
         newPost.value = {
             seller_user_id: userID,
-            book_id: bookId.value,
+            book_id: bookId,
             condition: "",
             price: null,
         };

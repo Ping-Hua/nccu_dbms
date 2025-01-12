@@ -56,7 +56,7 @@
     </div>
 
     <div v-if="showConfirmModal" class="modal-overlay" @click.self="closeConfirmModal">
-      <div class="modal-content">
+      <div class="modal-content-book">
         <h4>Confirm Book Details</h4>
         <div class="form-group">
           <label><b>Book Name:</b></label>
@@ -95,7 +95,7 @@
 
 
     <div v-if="showISBNModal" class="modal-overlay" @click.self="closeISBNModal">
-      <div class="modal-content">
+      <div class="modal-content-book">
         <h4>Add Book</h4>
         <form @submit.prevent="searchBookByISBN">
           <div class="form-group">
@@ -119,7 +119,7 @@
 
 
     <div v-if="showManualModal" class="modal-overlay" @click.self="showManualModal = false">
-      <div class="modal-content">
+      <div class="modal-content-book">
         <h4>Enter Book Details</h4>
         <form @submit.prevent="addBookManually">
           <div class="form-group">
@@ -435,7 +435,6 @@ async confirmBook() {
       book_picture_url: this.bookToConfirm.BookPictureUrl, // 確保名稱正確
       genre_id: parseInt(this.selectedGenre, 10), // 確保 genre_id 是數字型別
     };
-
     const response = await fetch("/api/v1/book/add_book", {
       method: "POST",
       headers: {
@@ -653,7 +652,7 @@ object-fit: cover; /* 確保圖片不會變形 */
   z-index: 1000;
 }
 
-.modal-content {
+.modal-content-book {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -663,20 +662,20 @@ object-fit: cover; /* 確保圖片不會變形 */
   overflow-y: auto; /* 內容超過時可滾動 */
 }
 
-.modal-content::-webkit-scrollbar {
+.modal-content-book::-webkit-scrollbar {
   width: 8px; /* 滾動條寬度 */
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modal-content-book::-webkit-scrollbar-thumb {
   background-color: #ccc; /* 滾動條顏色 */
   border-radius: 4px; /* 滾動條圓角 */
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.modal-content-book::-webkit-scrollbar-thumb:hover {
   background-color: #aaa; /* 滾動條滑過時的顏色 */
 }
 
-.modal-content h4 {
+.modal-content-book h4 {
   margin-top: 0;
   text-align: center;
   color: #4a4747;
@@ -792,7 +791,7 @@ object-fit: cover; /* 確保圖片不會變形 */
 
 .book-card {
   width: 220px; /* 固定寬度 */
-  height: 300px; /* 固定高度 */
+  height: auto; 
   display: flex;
   flex-direction: column; /* 垂直排列內容 */
   justify-content: space-between; /* 在卡片內均分空間 */

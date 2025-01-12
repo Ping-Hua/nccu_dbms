@@ -88,6 +88,7 @@ const closeModal = () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
+  z-index: 10000; 
 }
 
 .modal-content {
@@ -101,6 +102,7 @@ const closeModal = () => {
   width: 400px;
   height: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10001; 
 }
 
 .title-label {
