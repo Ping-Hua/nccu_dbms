@@ -9,7 +9,7 @@
 
 **組長｜** 113753128 資科碩一 李昕融
 
-110301026 國貿四 何姿儀 112354002 統碩二 張倢琳 112354003 統碩二 樂沂晨 112354010 統碩二 陳品華 112354021 統碩二 張祐瑜
+**組員｜**110301026 國貿四 何姿儀 112354002 統碩二 張倢琳 112354003 統碩二 樂沂晨 112354010 統碩二 陳品華 112354021 統碩二 張祐瑜
 
 ## 系統架構
 系統開發程式語言：Python 3.12   \
@@ -86,7 +86,7 @@ DBMS與工具：Flask 3.0.3 + SQLite\
 - 賣家：上傳二手書、管理已上傳書籍（刪除貼文）、留言
 
 
-### Entity Types
+## Entity Types
 
 * User(使用者)：*User_id* (使用者編號)、Name (姓名)、Email (電子信箱)、Password (密碼)、Student_number (學號)、Phone (電話)
 
@@ -100,7 +100,7 @@ DBMS與工具：Flask 3.0.3 + SQLite\
 
     註：斜體者為 Primary key 或 Partial key。
 
-### Relationship Types
+## Relationship Types
 
     1. 一位 User (使用者)可以發多則 Post (貼文)
     2. 一則 Post (貼文)只會被一位 User (使用者)所發出
