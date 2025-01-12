@@ -45,8 +45,8 @@
       <div
         class="book-card"
         v-for="book in books"
-        :key="book.book_id"
-        @click="viewBookDetails(book.book_id)"
+        :key="book.bookId"
+        @click="viewBookDetails(book.bookId)"
       >
         <img :src="book.BookPictureUrl" alt="Book Cover" class="book-cover" />
         <p><b>{{ book.BookName }}</b></p>
@@ -215,17 +215,6 @@ export default {
     this.showISBNModal = false; 
   },
 
- 
-  viewBookDetails(book_id) {
-    console.log("Navigating to post page with book_id:", book_id);
-
-    if (!book_id) {
-      alert("book_id is missing!");
-      return;
-    }
-
-    this.$router.push({ name: "post", params: { book_id } });
-  },
 
 async fetchAllBooks() {
     try {
@@ -250,12 +239,22 @@ async fetchAllBooks() {
         Publisher: book.publisher,
         BookPictureUrl: book.book_picture_url,
         Genre: book.genre_id,
+        bookId: book.book_id,
       }));
     } catch (error) {
       console.error("Error fetching books:", error);
       alert("An error occurred while fetching the book list. Please try again.");
     }
   },
+
+  viewBookDetails(bookId) {
+  if (!bookId) {
+    alert("Book ID is missing!");
+    return;
+  }
+
+  this.$router.push({ name: "post", params: { bookId } });
+},
 
 async fetchGenres() {
   try {

@@ -9,7 +9,8 @@ const globalStore = useGlobalStore();
 const userID = globalStore.user.id;
 
 const book = ref({});
-const bookId = ref(1); // 測試用
+const bookId = ref(null);
+bookId.value = this.$route.params.bookId;
 const posts = ref([]);
 
 // ---- 取得書籍資訊 ----
