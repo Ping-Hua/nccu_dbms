@@ -90,7 +90,8 @@
 
 ## ER Model
 
-![ER-model](https://github.com/user-attachments/assets/31bfab71-021e-4cf5-89df-1a4e5bb0be2d)
+<img width="1093" alt="image" src="https://github.com/user-attachments/assets/d8987d7d-cf84-4637-a4bd-c27e7cceda20" />
+
 
 ## Relational Schema 
 
