@@ -101,7 +101,7 @@
 
 * User(使用者)：*User_id* (使用者編號)、Name (姓名)、Email (電子信箱)、Password (密碼)、Student_number (學號)、Phone (電話)
 
-* Book(書籍)：*ISBN* (國際標準書號)、Book ID (書的編號)、Book Name (書名)、Author (作者)、Publisher (出版社)、Publication Year (出版年)、Image (書的圖片)
+* Book(書籍)：*Book ID* (書的編號)、 ISBN (國際標準書號)、Book Name (書名)、Author (作者)、Publisher (出版社)、Publication Year (出版年)、Image (書的圖片)
 
 * Genre(種類)：*Genre_ID* (種類編號)、Genre Name (種類名稱)
 
