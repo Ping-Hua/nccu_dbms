@@ -35,7 +35,15 @@ fi
 # genres initialize
 
 sqlite3 "$DB_NAME" <<EOF
-DELETE FROM genre;
+DROP TABLE IF EXISTS genre;
+EOF
+
+sqlite3 "$DB_NAME" <<EOF
+CREATE TABLE genre (
+    genre_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    genre_name TEXT, -- not null
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 EOF
 
 sqlite3 "$DB_NAME" <<EOF
