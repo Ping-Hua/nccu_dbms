@@ -359,10 +359,9 @@ async searchBooks() {
           Author: book.author,
           PublicYear: book.public_year,
           Publisher: book.publisher,
-          BookPictureUrl: book.book_picture_url
-          ? `${API_BASE_URL}/${book.book_picture_url}` 
-          : null, 
-          Genre: book.genre_id 
+          BookPictureUrl: book.book_picture_url || "default_image_url.jpg",
+          Genre: book.genre_id,
+          bookId: book.book_id,
         }));
         alert('Books fetched successfully!');
       } else {
